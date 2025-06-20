@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🐱 Sahabat Kojo Di Wowo</title>
+  <link rel="icon" type="image/png" href="https://img.favpng.com/10/23/10/china-chinese-cuisine-smiley-emoticon-clip-art-png-favpng-hCAPNzc0tvqP7xgLiFQXJQMvd.jpg" sizes="16x16" />
+  <style>
+    body {
+      font-family: monospace;
+      max-width: 800px;
+      margin: 20px auto;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    .center {
+      text-align: center;
+    }
+
+    img {
+      max-width: 100%;
+      height: auto;
+    }
+
+    textarea {
+      width: 100%;
+      height: 120px;
+      font-family: monospace;
+      margin-bottom: 10px;
+      padding: 10px;
+      font-size: 16px;
+      box-sizing: border-box;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      font-size: 18px;
+      cursor: pointer;
+      background-color: #333;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+    }
+
+    pre {
+      background: #f4f4f4;
+      padding: 10px;
+      border: 1px solid #ccc;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+
+    #greeting {
+      font-size: 20px;
+      margin-top: 20px;
+      font-weight: bold;
+    }
+
+    #description {
+      font-size: 16px;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="center">
+    <img src="https://media.tenor.com/NzrqQHFBVz8AAAAj/kitty-transparent.gif" alt="Kitty GIF" style="height: 80px;">
+  </div>
+
+  <textarea id="base64Input" placeholder="Paste Base64 here..."></textarea>
+  <button onclick="decodeTLV()">Decode</button>
+
+  <div id="greeting" class="center"></div>
+  <div id="description" class="center"></div>
+
+  <pre id="output"></pre>
+
+  <script>
+    const tagDescriptions = {
+      '85': 'Payload Format Indicator',
+      '61': 'Application Template',
+      '50': 'Application Label',
+      '63': 'Application Specific Transparent Template',
+      '9F74': 'Protected Data Envelope',
+      '4F': 'AID',
+      '5A': 'CPAN',
+      '5F20': 'Customer Name',
+      '5F2D': 'Language',
+      '5F50': 'Mail',
+      '9F25': 'Last 4 Digits CPAN'
+    };
+
+    function decodeTLV() {
+      const base64 = document.getElementById("base64Input").value.trim();
+      try {
+        const hex = atob(base64).split('').map(c =>
+          ('0' + c.charCodeAt(0).toString(16)).slice(-2)
+        ).join('').toUpperCase();
+        const parsed = parseTLV(hex);
+        document.getElementById("output").innerHTML = format(parsed);
+      } catch (e) {
+        document.getElementById("output").textContent = "❌ Invalid Base64 input";
+      }
+
+      fetch("https://random-animal-api.vercel.app/api/random-animal")
+        .then(res => res.json())
+        .then(data => {
+          const name = data.city || "Sahabat Kojo Di Wowo";
+          document.getElementById("greeting").innerHTML = `Hi, <span style="color: black; font-weight: bold;">${name}</span>`;
+          document.getElementById("description").textContent = "This is your parsed TLV string:";
+        })
+        .catch(() => {
+          const fallback = "Sahabat Kojo Di Wowo";
+          document.getElementById("greeting").innerHTML = `Hi, <span style="color: black; font-weight: bold;">${fallback}</span>`;
+          document.getElementById("description").textContent = "This is your parsed TLV string:";
+        });
+    }
+
+    function parseTLV(hex) {
+      let i = 0;
+      const result = {};
+      const keepAsHexTags = ['4F', '9F25'];
+
+      while (i < hex.length) {
+        let tag = hex.substr(i, 2);
+        i += 2;
+        if ((parseInt(tag, 16) & 0x1F) === 0x1F) {
+          while ((parseInt(hex.substr(i, 2), 16) & 0x80) === 0x80) {
+            tag += hex.substr(i, 2);
+            i += 2;
+          }
+          tag += hex.substr(i, 2);
+          i += 2;
+        }
+
+        let lenByte = parseInt(hex.substr(i, 2), 16);
+        i += 2;
+        let length = lenByte;
+        if ((lenByte & 0x80) !== 0) {
+          const lenLen = lenByte & 0x7F;
+          length = parseInt(hex.substr(i, lenLen * 2), 16);
+          i += lenLen * 2;
+        }
+
+        const valueHex = hex.substr(i, length * 2);
+        i += length * 2;
+
+        if (tag === '61' || tag === '63') {
+          result[tag] = parseTLV(valueHex);
+        } else if (tag === '5A') {
+          const digits = valueHex.match(/.{2}/g)
+            .map(byte => {
+              const high = (parseInt(byte, 16) >> 4) & 0xF;
+              const low = parseInt(byte, 16) & 0xF;
+              return `${high}${low}`;
+            }).join('').replace(/F+$/, '').slice(0, 19);
+          result[tag] = digits;
+        } else if (keepAsHexTags.includes(tag)) {
+          result[tag] = valueHex.toUpperCase();
+        } else {
+          const ascii = valueHex.match(/.{2}/g)
+            .map(h => String.fromCharCode(parseInt(h, 16)))
+            .join('').trim();
+          result[tag] = ascii;
+        }
+      }
+
+      return result;
+    }
+
+    function format(obj, indent = 0) {
+      const pad = '  '.repeat(indent);
+      const entries = Object.entries(obj);
+
+      // Prioritize '85' on top
+      entries.sort(([a], [b]) => (a === '85' ? -1 : b === '85' ? 1 : 0));
+
+      return entries.map(([k, v]) => {
+        const desc = tagDescriptions[k] ? ` [${tagDescriptions[k]}]` : '';
+        const keyLabel = `"${k}${desc}"`;
+        if (typeof v === 'object') {
+          return `${pad}${keyLabel}: {\n${format(v, indent + 1)}\n${pad}}`;
+        } else {
+          const boldValue = `<span style="font-weight:bold">${v}</span>`;
+          return `${pad}${keyLabel}: "${boldValue}"`;
+        }
+      }).join(',\n');
+    }
+  </script>
+</body>
+</html>
