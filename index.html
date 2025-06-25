@@ -128,20 +128,6 @@
         margin: 10px auto; /* Adds a little top/bottom margin and centers horizontally */
         display: block; /* Ensures margin auto works correctly */
     }
-
-    #qrExtractionResult {
-        margin-top: 20px;
-        text-align: left;
-        padding: 10px;
-        background-color: #f9f9f9;
-        border: 1px dashed #ddd;
-        border-radius: 4px;
-        font-size: 15px;
-        word-break: break-all;
-    }
-    #qrExtractionResult strong {
-        color: #555;
-    }
   </style>
 </head>
 <body>
@@ -186,10 +172,8 @@
         <img src="https://media1.tenor.com/m/bxeM9N2IXLsAAAAd/osita-osita-iheme.gif" alt="Kitty GIF" style="height: 100px;">
         <h2>TLV EMVCo to QR Code Generator</h2> </div>
     <textarea id="qrInput" placeholder="Paste TLV EMVCo data for QR Code..."></textarea> <button onclick="generateQrCodeFeature()">Generate QR Code</button>
-    
     <div class="qrcode-frame center"> <div id="qrcodeDisplay"></div> </div>
-    
-    <div id="qrExtractionResult"></div> <hr>
+    <hr>
     <button onclick="showSection('mainMenu')" class="back-button">&#x2190; Back to Menu</button>
   </div>
 
@@ -207,16 +191,7 @@
       '5F20': 'Customer Name',
       '5F2D': 'Language',
       '5F50': 'Mail',
-      '9F25': 'Last 4 Digits CPAN',
-      '52': 'Merchant Category Code (MCC)', 
-      '59': 'Merchant Name (Global)',       
-      '60': 'Merchant City (Global)',       
-      '62': 'Payment System Specific Template', 
-      '70': 'EMV Payment Application Template', // Added for completeness of composite tags
-      '26': 'Merchant Account Information Template', // New: for specific extraction
-      '01': 'Acquirer Identifier (Sub-tag of 26)', // Sub-tag of 26
-      '02': 'MID / GU ID (Sub-tag of 26/51)', // Sub-tag of 26 or 51
-      '51': 'Payment System Specific Template (QRIS)' // New composite tag for QRIS
+      '9F25': 'Last 4 Digits CPAN'
     };
 
     let qrcodeInstanceForNewSection = null; // To hold the QR code instance for the new QR section
@@ -245,7 +220,6 @@
           const qrcodeDiv = document.getElementById("qrcodeDisplay");
           if (qrcodeDiv) qrcodeDiv.innerHTML = '';
           qrcodeInstanceForNewSection = null; // Reset QR code instance
-          document.getElementById('qrExtractionResult').innerHTML = ''; // Clear extraction results
       } else if (sectionId === 'tlvDecoderSection') {
           // No specific clear needed here as QR code generation moved
       } else if (sectionId === 'crcCheckerSection') {
@@ -255,7 +229,6 @@
           const qrcodeDiv = document.getElementById("qrcodeDisplay");
           if (qrcodeDiv) qrcodeDiv.innerHTML = '';
           qrcodeInstanceForNewSection = null;
-          document.getElementById('qrExtractionResult').innerHTML = ''; // Clear extraction results
       }
     }
 
@@ -264,59 +237,83 @@
         showSection('mainMenu');
     });
 
-    // parseTLV is for Base64 decoding (standard hex TLV)
-    function parseTLV(hex) { // Original name retained for Base64 decoder consistency
+    function decodeTLV() {
+      const base64 = document.getElementById("base64Input").value.trim();
+      try {
+        const hex = atob(base64).split('').map(c =>
+          ('0' + c.charCodeAt(0).toString(16)).slice(-2)
+        ).join('').toUpperCase();
+        const parsed = parseTLV(hex);
+        document.getElementById("output").innerHTML = format(parsed);
+      } catch (e) {
+        document.getElementById("output").textContent = "❌ Invalid Base64 input";
+      }
+
+      fetch("https://random-animal-api.vercel.app/api/random-animal")
+        .then(res => res.json())
+        .then(data => {
+          const name = data.city || "Sahabat Kojo Di Wowo";
+          document.getElementById("greeting").innerHTML = `Hi, <span style="color: black; font-weight: bold;">${name}</span>`;
+          document.getElementById("description").textContent = "This is your parsed TLV string:";
+        })
+        .catch(() => {
+          const fallback = "Sahabat Kojo Di Wowo";
+          document.getElementById("greeting").innerHTML = `Hi, <span style="color: black; font-weight: bold;">${fallback}</span>`;
+          document.getElementById("description").textContent = "This is your parsed TLV string:";
+        });
+    }
+
+    function parseTLV(hex) {
       let i = 0;
       const result = {};
-      const keepAsHexTags = ['4F', '9F25']; // Tags whose values should remain as hex
+      const keepAsHexTags = ['4F', '9F25'];
 
       while (i < hex.length) {
         let tag = hex.substr(i, 2);
         i += 2;
-        if ((parseInt(tag, 16) & 0x1F) === 0x1F) { // Check for multi-byte tag (first byte ends with 1F)
-          while ((parseInt(hex.substr(i, 2), 16) & 0x80) === 0x80) { // Subsequent bytes have MSB set
+        if ((parseInt(tag, 16) & 0x1F) === 0x1F) {
+          while ((parseInt(hex.substr(i, 2), 16) & 0x80) === 0x80) {
             tag += hex.substr(i, 2);
             i += 2;
           }
-          tag += hex.substr(i, 2); // Last byte of multi-byte tag
+          tag += hex.substr(i, 2);
           i += 2;
         }
 
         let lenByte = parseInt(hex.substr(i, 2), 16);
         i += 2;
         let length = lenByte;
-        if ((lenByte & 0x80) !== 0) { // Length is multi-byte (first byte has MSB set)
-          const lenLen = lenByte & 0x7F; // Number of subsequent bytes for length
-          length = parseInt(hex.substr(i, lenLen * 2), 16); // Read actual length
+        if ((lenByte & 0x80) !== 0) {
+          const lenLen = lenByte & 0x7F;
+          length = parseInt(hex.substr(i, lenLen * 2), 16);
           i += lenLen * 2;
         }
 
-        const valueHex = hex.substr(i, length * 2); // Value is hex string
+        const valueHex = hex.substr(i, length * 2);
         i += length * 2;
 
-        // Handle composite tags (templates) recursively
-        if (tag === '61' || tag === '63' || tag === '62' || tag === '70' || tag === '26' || tag === '51') { 
-          result[tag] = parseTLV(valueHex); // Recursive call using this parser
-        } else if (tag === '5A') { // Special handling for CPAN to format as digits
-          const digits = valueHex.match(/.{2}/g) 
+        if (tag === '61' || tag === '63') {
+          result[tag] = parseTLV(valueHex);
+        } else if (tag === '5A') {
+          const digits = valueHex.match(/.{2}/g)
             .map(byte => {
-              const high = (parseInt(byte, 16) >> 4) & 0xF; 
-              const low = (parseInt(byte, 16) & 0xF); 
-              return `${high}${low}`; 
-            }).join('').replace(/F+$/, '').slice(0, 19); 
+              const high = (parseInt(byte, 16) >> 4) & 0xF;
+              const low = (parseInt(byte, 16) & 0xF);
+              return `${high}${low}`;
+            }).join('').replace(/F+$/, '').slice(0, 19);
           result[tag] = digits;
-        } else if (keepAsHexTags.includes(tag)) { // Keep specified tags as raw hex
+        } else if (keepAsHexTags.includes(tag)) {
           result[tag] = valueHex.toUpperCase();
-        } else { // Default to ASCII conversion
+        } else {
           const ascii = valueHex.match(/.{2}/g)
             .map(h => String.fromCharCode(parseInt(h, 16)))
             .join('').trim();
           result[tag] = ascii;
         }
       }
+
       return result;
     }
-
 
     function format(obj, indent = 0) {
       const pad = '  '.repeat(indent);
@@ -418,112 +415,22 @@
             });
     }
 
-    // Helper function to extract specific details from parsed TLV for QR Code section
-    function extractQrDetails(parsedTlv) {
-        let nmId = 'N/A';
-        let merchantName = 'N/A';
-        let merchantCity = 'N/A';
-        let acquirer = 'N/A';
-        let mid = 'N/A'; // New field for MID
-
-        // NMID: Tag 51 subtag 02 (as per user's example)
-        if (parsedTlv['51'] && parsedTlv['51']['02']) {
-            nmId = parsedTlv['51']['02'];
-        }
-
-        // Merchant Name: Tag 59 (as per user's example)
-        if (parsedTlv['59']) {
-            merchantName = parsedTlv['59'];
-        } 
-
-        // Merchant City: Tag 60 (as per user's example)
-        if (parsedTlv['60']) {
-            merchantCity = parsedTlv['60'];
-        } 
-
-        // Acquirer: Tag 26 subtag 01, substring 8 digits (as per user's example)
-        if (parsedTlv['26'] && parsedTlv['26']['01']) {
-            acquirer = parsedTlv['26']['01'].substring(0, 8);
-        }
-
-        // MID: Tag 26 subtag 02 (as per user's example)
-        if (parsedTlv['26'] && parsedTlv['26']['02']) {
-            mid = parsedTlv['26']['02'];
-        }
-
-        return { merchantName, merchantCity, nmId, acquirer, mid };
-    }
-
-    // New parser specifically for EMVCo QR code format (decimal lengths, ASCII values)
-    function parseCustomQRTLV(tlvString) {
-        let i = 0;
-        const result = {};
-
-        while (i < tlvString.length) {
-            let tag = tlvString.substr(i, 2); // Tags are 2 hex chars (1 byte)
-            i += 2;
-
-            let lenStr = tlvString.substr(i, 2); // Lengths are 2 ASCII chars (e.g., "25")
-            i += 2;
-            let length = parseInt(lenStr, 10); // Parse Length as DECIMAL
-
-            let value = tlvString.substr(i, length); // Value is 'length' ASCII characters
-            i += length;
-
-            // Common composite tags in EMVCo QR that might contain further custom TLV
-            if (['26', '51', '62', '64'].includes(tag)) { // Added '26', '51', '62', '64' for common EMVCo QR composite tags
-                try {
-                    result[tag] = parseCustomQRTLV(value); // Recursive call using this custom parser
-                } catch (e) {
-                    console.error(`Error parsing nested custom TLV for tag ${tag}:`, value, e);
-                    result[tag] = `ERROR_PARSING_COMPOSITE(${value})`; // Indicate parsing error
-                }
-            } else {
-                result[tag] = value; // Assign value directly (it's already ASCII)
-            }
-        }
-        return result;
-    }
-
-    // Function to generate QR Code, also calls extraction automatically
+    // New QR Code Generation function for its dedicated section
     function generateQrCodeFeature() {
         const inputData = document.getElementById("qrInput").value.trim(); // Get data from new QR textarea
         const qrcodeDiv = document.getElementById("qrcodeDisplay"); // Target the new QR display div
-        const extractionResultDiv = document.getElementById("qrExtractionResult");
         
         // Clear previous QR code and error messages
         qrcodeDiv.innerHTML = ''; 
-        extractionResultDiv.innerHTML = ''; // Clear previous extraction results
         
         if (!inputData) {
             qrcodeDiv.textContent = "Please paste TLV EMVCo data to generate QR code.";
-            extractionResultDiv.innerHTML = `<p style="color: red;">Please paste TLV EMVCo data to extract details.</p>`;
             return;
         }
 
-        // Parse and extract details first using the custom parser
-        let parsedTlvData;
-        try {
-            parsedTlvData = parseCustomQRTLV(inputData); // Use the new custom parser here
-            const { merchantName, merchantCity, nmId, acquirer, mid } = extractQrDetails(parsedTlvData);
-            
-            extractionResultDiv.innerHTML = `
-                <h3>Extracted Details:</h3>
-                <p><strong>NMID:</strong> ${nmId}</p>
-                <p><strong>Merchant Name:</strong> ${merchantName}</p>
-                <p><strong>Merchant City:</strong> ${merchantCity}</p>
-                <p><strong>Acquirer:</strong> ${acquirer}</p>
-                <p><strong>MID:</strong> ${mid}</p>
-            `;
-        } catch (e) {
-            console.error("Error parsing TLV for extraction:", e);
-            extractionResultDiv.innerHTML = `<p style="color: red;">Error extracting details: Invalid TLV format or unexpected error. Please check your TLV data.</p>`;
-            // If parsing fails, don't generate QR code to avoid misleading result
-            qrcodeDiv.textContent = "Error: Could not generate QR due to invalid TLV data for extraction.";
-            return;
-        }
-
-        // Generate QR Code
+        // Initialize QRCode instance if it's null, otherwise just update
+        // qrcode.js works by appending canvas/table to the div.
+        // Clearing innerHTML means the old instance is detached.
         qrcodeInstanceForNewSection = new QRCode(qrcodeDiv, {
             text: inputData,
             width: 256, // Larger size
