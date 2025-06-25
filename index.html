@@ -3,8 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>TLV Pasta</title> 
-  <link rel="icon" type="image/png" href="https://img.favpng.com/10/23/10/china-chinese-cuisine-smiley-emoticon-clip-art-png-favpng-hCAPNzc0tvqP7xgLiFQXJQMvd.jpg" sizes="16x16" />
+  <title>TLV & CRC Tool</title> 
   <style>
     body {
       font-family: monospace;
@@ -23,7 +22,7 @@
       height: auto;
     }
 
-    textarea {
+    textarea { /* This rule now applies to all textareas */
       width: 100%;
       height: 120px;
       font-family: monospace;
@@ -31,6 +30,9 @@
       padding: 10px;
       font-size: 16px;
       box-sizing: border-box;
+      resize: none; /* Prevents user from resizing */
+      text-align: left; /* Aligns text and placeholder to top-left */
+      line-height: 1.5; /* Allows natural multi-line text wrapping */
     }
 
     button {
@@ -42,6 +44,29 @@
       color: #fff;
       border: none;
       border-radius: 4px;
+      margin-bottom: 10px; /* Added margin for separation */
+    }
+
+    #mainMenu button {
+        margin-top: 10px;
+        font-size: 20px;
+        padding: 15px;
+    }
+
+    /* New style for the "Back to Menu" buttons */
+    .back-button {
+      background-color: #007bff; /* A distinct blue */
+      color: white;
+      padding: 15px 12px; /* Slightly more vertical padding */
+      font-size: 20px; /* Larger font */
+      border: 1px solid #0056b3; /* Darker blue border */
+      transition: background-color 0.3s ease, border-color 0.3s ease; /* Smooth transition */
+      margin-top: 20px; /* More space above it */
+    }
+
+    .back-button:hover {
+      background-color: #0056b3; /* Darker blue on hover */
+      border-color: #004085; /* Even darker border on hover */
     }
 
     pre {
@@ -50,6 +75,7 @@
       border: 1px solid #ccc;
       white-space: pre-wrap;
       word-wrap: break-word;
+      font-size: 20px; /* Base font size for the pre block */
     }
 
     #greeting {
@@ -62,21 +88,97 @@
       font-size: 16px;
       margin-bottom: 10px;
     }
+
+    #crcOutput { /* Style for CRC output */
+      font-size: 28px; /* Increased font size for larger display */
+      font-weight: bold;
+      margin-top: 10px;
+      padding: 10px;
+      background-color: #e0ffe0; /* Light green background for CRC result */
+      border: 1px solid #a0c0a0;
+      border-radius: 4px;
+      cursor: pointer; /* Indicate it's clickable */
+      transition: background-color 0.3s ease; /* Smooth transition for feedback */
+    }
+
+    #crcOutput.copied { /* Style for when it's copied */
+        background-color: #c0ffc0; /* Darker green */
+    }
+
+    /* Styling for the QR code frame */
+    .qrcode-frame {
+      border: 1px solid #ccc; /* Subtle grey border */
+      border-radius: 8px;    /* Rounded corners */
+      padding: 15px;         /* Space inside the frame */
+      box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1); /* Light shadow for depth */
+      display: inline-block; /* Adjust to content */
+      margin-top: 20px;     /* Space above the frame */
+      text-align: center; /* To center its content */
+    }
+
+    /* Styling for the QR code container inside the frame */
+    #qrcodeDisplay {
+        background-color: white;
+        display: inline-block; /* To allow it to shrink to content size within the frame */
+    }
+
+    /* Rule to further ensure centering of the generated QR code element (table/canvas) */
+    #qrcodeDisplay table,
+    #qrcodeDisplay canvas {
+        margin: 10px auto; /* Adds a little top/bottom margin and centers horizontally */
+        display: block; /* Ensures margin auto works correctly */
+    }
   </style>
 </head>
 <body>
-  <div class="center">
-    <img src="https://media1.tenor.com/m/bxeM9N2IXLsAAAAd/osita-osita-iheme.gif" alt="Kitty GIF" style="height: 100px;"> 
+
+  <div id="mainMenu" class="center">
+    <h1>TLV & CRC Tool</h1>
+    <img src="https://media1.tenor.com/m/bxeM9N2IXLsAAAAd/osita-osita-iheme.gif" alt="Kitty GIF" style="height: 100px; margin-bottom: 20px;"> 
+    <h2>Select an Option:</h2>
+    <button onclick="showSection('tlvDecoderSection')">Decode Base64</button>
+    <button onclick="showSection('crcCheckerSection')">CRC-16 Check Digit</button>
+    <button onclick="showSection('qrCodeSection')">Generate QR Code</button> </div>
+
+  <div id="tlvDecoderSection" style="display: none;">
+    <div class="center">
+        <img src="https://media1.tenor.com/m/bxeM9N2IXLsAAAAd/osita-osita-iheme.gif" alt="Kitty GIF" style="height: 100px;"> 
+        <h2>Base64 TLV Decoder</h2>
+    </div>
+    <textarea id="base64Input" placeholder="Paste Base64 here..."></textarea>
+    <button onclick="decodeTLV()">Decode</button>
+    <div id="greeting" class="center"></div>
+    <div id="description" class="center"></div>
+
+    <pre id="output"></pre>
+    <hr>
+    <button onclick="showSection('mainMenu')" class="back-button">&#x2190; Back to Menu</button>
   </div>
 
-  <textarea id="base64Input" placeholder="Paste Base64 here..."></textarea>
-  <button onclick="decodeTLV()">Decode</button>
+  <div id="crcCheckerSection" style="display: none;">
+    <div class="center">
+        <img src="https://media1.tenor.com/m/bxeM9N2IXLsAAAAd/osita-osita-iheme.gif" alt="Kitty GIF" style="height: 100px;"> 
+        <h2>CRC-16 Check Digit Calculator</h2>
+    </div>
+    <textarea id="crcInput" placeholder="Enter string for CRC-16..."></textarea>
+    <button onclick="calculateCRC16()">Calculate CRC-16</button>
+    <div id="crcOutput" class="center" onclick="copyCrcResult()"></div>
+    <hr>
+    <button onclick="showSection('mainMenu')" class="back-button">&#x2190; Back to Menu</button>
+  </div>
 
-  <div id="greeting" class="center"></div>
-  <div id="description" class="center"></div>
+  <div id="qrCodeSection" style="display: none;">
+    <div class="center">
+        <img src="https://media1.tenor.com/m/bxeM9N2IXLsAAAAd/osita-osita-iheme.gif" alt="Kitty GIF" style="height: 100px;">
+        <h2>TLV EMVCo to QR Code Generator</h2> </div>
+    <textarea id="qrInput" placeholder="Paste TLV EMVCo data for QR Code..."></textarea> <button onclick="generateQrCodeFeature()">Generate QR Code</button>
+    <div class="qrcode-frame center"> <div id="qrcodeDisplay"></div> </div>
+    <hr>
+    <button onclick="showSection('mainMenu')" class="back-button">&#x2190; Back to Menu</button>
+  </div>
 
-  <pre id="output"></pre>
 
+  <script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
   <script>
     const tagDescriptions = {
       '85': 'Payload Format Indicator',
@@ -91,6 +193,49 @@
       '5F50': 'Mail',
       '9F25': 'Last 4 Digits CPAN'
     };
+
+    let qrcodeInstanceForNewSection = null; // To hold the QR code instance for the new QR section
+
+    function showSection(sectionId) {
+      const sections = ['mainMenu', 'tlvDecoderSection', 'crcCheckerSection', 'qrCodeSection'];
+      sections.forEach(id => {
+        document.getElementById(id).style.display = 'none';
+      });
+      document.getElementById(sectionId).style.display = 'block';
+
+      // Clear previous outputs/inputs when switching sections or returning to main menu
+      if (sectionId === 'mainMenu') {
+          // Clear TLV Decoder section
+          document.getElementById('base64Input').value = '';
+          document.getElementById('output').textContent = '';
+          document.getElementById('greeting').textContent = '';
+          document.getElementById('description').textContent = '';
+
+          // Clear CRC Calculator section
+          document.getElementById('crcInput').value = '';
+          document.getElementById('crcOutput').textContent = '';
+
+          // Clear QR Code Generator section
+          document.getElementById('qrInput').value = '';
+          const qrcodeDiv = document.getElementById("qrcodeDisplay");
+          if (qrcodeDiv) qrcodeDiv.innerHTML = '';
+          qrcodeInstanceForNewSection = null; // Reset QR code instance
+      } else if (sectionId === 'tlvDecoderSection') {
+          // No specific clear needed here as QR code generation moved
+      } else if (sectionId === 'crcCheckerSection') {
+          // No specific clear needed here
+      } else if (sectionId === 'qrCodeSection') {
+          // Clear previous QR code and its instance when entering QR section
+          const qrcodeDiv = document.getElementById("qrcodeDisplay");
+          if (qrcodeDiv) qrcodeDiv.innerHTML = '';
+          qrcodeInstanceForNewSection = null;
+      }
+    }
+
+    // Call showSection to initially display the main menu
+    document.addEventListener('DOMContentLoaded', () => {
+        showSection('mainMenu');
+    });
 
     function decodeTLV() {
       const base64 = document.getElementById("base64Input").value.trim();
@@ -153,7 +298,7 @@
           const digits = valueHex.match(/.{2}/g)
             .map(byte => {
               const high = (parseInt(byte, 16) >> 4) & 0xF;
-              const low = parseInt(byte, 16) & 0xF;
+              const low = (parseInt(byte, 16) & 0xF);
               return `${high}${low}`;
             }).join('').replace(/F+$/, '').slice(0, 19);
           result[tag] = digits;
@@ -180,13 +325,120 @@
       return entries.map(([k, v]) => {
         const desc = tagDescriptions[k] ? ` [${tagDescriptions[k]}]` : '';
         const keyLabel = `"${k}${desc}"`;
+        
+        let valueHtml;
         if (typeof v === 'object') {
-          return `${pad}${keyLabel}: {\n${format(v, indent + 1)}\n${pad}}`;
+          valueHtml = `{\n${format(v, indent + 1)}\n${pad}}`;
         } else {
-          const boldValue = `<span style="font-weight:bold">${v}</span>`;
-          return `${pad}${keyLabel}: "${boldValue}"`;
+          valueHtml = `<span style="font-weight:bold">${v}</span>`;
+        }
+
+        const isHighlighted = (k === '5A' || k === '5F20');
+        const highlightStyle = `font-size: 24px; background-color: #FFFF99;`;
+
+        if (isHighlighted) {
+            // Wrap the entire line, including leading whitespace, in the highlighting span
+            return `<span style="${highlightStyle}">${pad}${keyLabel}: "${valueHtml}"</span>`;
+        } else if (typeof v === 'object') {
+            return `${pad}${keyLabel}: ${valueHtml}`;
+        }
+        else {
+            return `${pad}${keyLabel}: "${valueHtml}"`;
         }
       }).join(',\n');
+    }
+
+    // CRC-16 Calculation Functions
+    function crc16(dataString) {
+        let crc = 0xFFFF; // Initial value 0xFFFF
+        const polynomial = 0x1021; // Polynomial changed to 0x1021
+
+        for (let i = 0; i < dataString.length; i++) {
+            let byte = dataString.charCodeAt(i); // Get ASCII value of character
+            crc ^= byte << 8; // XOR byte into top of CRC
+
+            for (let j = 0; j < 8; j++) {
+                if ((crc & 0x8000) !== 0) { // If MSB is 1
+                    crc = (crc << 1) ^ polynomial;
+                } else {
+                    crc <<= 1;
+                }
+            }
+        }
+        // Final XOR value 0x0000 means no operation is needed here as it doesn't change the value.
+        return crc & 0xFFFF; // Ensure it's 16-bit
+    }
+
+    let originalCrcOutputText = ""; // To store the original text for reverting
+
+    function calculateCRC16() {
+        const inputString = document.getElementById("crcInput").value;
+        const crcOutputElement = document.getElementById("crcOutput");
+
+        if (inputString) {
+            const result = crc16(inputString);
+            const hexResult = ("0000" + result.toString(16)).slice(-4).toUpperCase(); 
+            originalCrcOutputText = hexResult; // Store the actual result
+            crcOutputElement.textContent = hexResult;
+        } else {
+            originalCrcOutputText = "Please enter a string to calculate CRC-16."; // Store the error message
+            crcOutputElement.textContent = originalCrcOutputText;
+        }
+        crcOutputElement.classList.remove('copied'); // Ensure 'copied' class is removed on new calculation
+    }
+
+    function copyCrcResult() {
+        const crcOutputElement = document.getElementById("crcOutput");
+        const textToCopy = crcOutputElement.textContent;
+
+        // Prevent copying the "Please enter..." message
+        if (textToCopy === "Please enter a string to calculate CRC-16." || textToCopy === "Copied!") {
+            return;
+        }
+
+        navigator.clipboard.writeText(textToCopy)
+            .then(() => {
+                crcOutputElement.textContent = "Copied!";
+                crcOutputElement.classList.add('copied');
+                setTimeout(() => {
+                    crcOutputElement.textContent = originalCrcOutputText;
+                    crcOutputElement.classList.remove('copied');
+                }, 1500); // Revert after 1.5 seconds
+            })
+            .catch(err => {
+                console.error('Failed to copy text: ', err);
+                // Optionally provide a different error message to the user
+                crcOutputElement.textContent = "Copy Failed!";
+                setTimeout(() => {
+                    crcOutputElement.textContent = originalCrcOutputText;
+                }, 1500);
+            });
+    }
+
+    // New QR Code Generation function for its dedicated section
+    function generateQrCodeFeature() {
+        const inputData = document.getElementById("qrInput").value.trim(); // Get data from new QR textarea
+        const qrcodeDiv = document.getElementById("qrcodeDisplay"); // Target the new QR display div
+        
+        // Clear previous QR code and error messages
+        qrcodeDiv.innerHTML = ''; 
+        
+        if (!inputData) {
+            qrcodeDiv.textContent = "Please paste TLV EMVCo data to generate QR code.";
+            return;
+        }
+
+        // Initialize QRCode instance if it's null, otherwise just update
+        // qrcode.js works by appending canvas/table to the div.
+        // Clearing innerHTML means the old instance is detached.
+        qrcodeInstanceForNewSection = new QRCode(qrcodeDiv, {
+            text: inputData,
+            width: 256, // Larger size
+            height: 256, // Larger size
+            colorDark : "#000000",
+            colorLight : "#ffffff",
+            correctLevel : QRCode.CorrectLevel.H // High error correction
+        });
     }
   </script>
 </body>
