@@ -13,117 +13,57 @@
       box-sizing: border-box;
     }
 
-    .center {
-      text-align: center;
-    }
+    .center { text-align: center; }
 
-    img {
-      max-width: 100%;
-      height: auto;
-    }
+    img { max-width: 100%; height: auto; }
 
     textarea {
-      width: 100%;
-      height: 120px;
-      font-family: monospace;
-      margin-bottom: 10px;
-      padding: 10px;
-      font-size: 16px;
-      box-sizing: border-box;
-      resize: none;
-      text-align: left;
-      line-height: 1.5;
+      width: 100%; height: 120px; font-family: monospace;
+      margin-bottom: 10px; padding: 10px; font-size: 16px;
+      box-sizing: border-box; resize: none; text-align: left; line-height: 1.5;
     }
 
     button {
-      width: 100%;
-      padding: 12px;
-      font-size: 18px;
-      cursor: pointer;
-      background-color: #333;
-      color: #fff;
-      border: none;
-      border-radius: 4px;
-      margin-bottom: 10px;
+      width: 100%; padding: 12px; font-size: 18px; cursor: pointer;
+      background-color: #333; color: #fff; border: none; border-radius: 4px; margin-bottom: 10px;
     }
 
-    #mainMenu button {
-      margin-top: 10px;
-      font-size: 20px;
-      padding: 15px;
-    }
+    #mainMenu button { margin-top: 10px; font-size: 20px; padding: 15px; }
 
     .back-button {
-      background-color: #007bff;
-      color: white;
-      padding: 15px 12px;
-      font-size: 20px;
-      border: 1px solid #0056b3;
-      transition: background-color 0.3s ease, border-color 0.3s ease;
-      margin-top: 20px;
+      background-color: #007bff; color: white; padding: 15px 12px;
+      font-size: 20px; border: 1px solid #0056b3;
+      transition: background-color 0.3s ease, border-color 0.3s ease; margin-top: 20px;
     }
-
-    .back-button:hover {
-      background-color: #0056b3;
-      border-color: #004085;
-    }
+    .back-button:hover { background-color: #0056b3; border-color: #004085; }
 
     pre {
-      background: #f4f4f4;
-      padding: 10px;
-      border: 1px solid #ccc;
-      white-space: pre-wrap;
-      word-wrap: break-word;
-      font-size: 20px;
+      background: #f4f4f4; padding: 10px; border: 1px solid #ccc;
+      white-space: pre-wrap; word-wrap: break-word; font-size: 20px;
     }
 
-    #greeting {
-      font-size: 20px;
-      margin-top: 20px;
-      font-weight: bold;
-    }
-
-    #description {
-      font-size: 16px;
-      margin-bottom: 10px;
-    }
+    #greeting { font-size: 20px; margin-top: 20px; font-weight: bold; }
+    #description { font-size: 16px; margin-bottom: 10px; }
 
     #crcOutput {
-      font-size: 28px;
-      font-weight: bold;
-      margin-top: 10px;
-      padding: 10px;
-      background-color: #e0ffe0;
-      border: 1px solid #a0c0a0;
-      border-radius: 4px;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
+      font-size: 28px; font-weight: bold; margin-top: 10px; padding: 10px;
+      background-color: #e0ffe0; border: 1px solid #a0c0a0; border-radius: 4px;
+      cursor: pointer; transition: background-color 0.3s ease;
     }
-
-    #crcOutput.copied {
-      background-color: #c0ffc0;
-    }
+    #crcOutput.copied { background-color: #c0ffc0; }
 
     .qrcode-frame {
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      padding: 15px;
-      box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
-      display: inline-block;
-      margin-top: 20px;
-      text-align: center;
+      border: 1px solid #ccc; border-radius: 8px; padding: 15px;
+      box-shadow: 2px 2px 8px rgba(0,0,0,0.1); display: inline-block; margin-top: 20px; text-align: center;
     }
 
-    #qrcodeDisplay {
-      background-color: white;
-      display: inline-block;
-    }
+    #qrcodeDisplay { background-color: white; display: inline-block; }
+    #qrcodeDisplay table, #qrcodeDisplay canvas { margin: 10px auto; display: block; }
 
-    #qrcodeDisplay table,
-    #qrcodeDisplay canvas {
-      margin: 10px auto;
-      display: block;
-    }
+    /* ---- NEW: merchant & additional data styling ---- */
+    #merchantInfo { margin-top: 20px; text-align: left; font-size: 18px; line-height: 1.4; word-break: break-word; }
+    #merchantInfo span.label { font-weight: bold; display: inline-block; min-width: 180px; }
+    #merchantInfo .section-title { font-weight: bold; margin-top: 12px; text-decoration: underline; }
   </style>
 </head>
 <body>
@@ -138,10 +78,10 @@
     <button onclick="showSection('qrCodeSection')">Generate QR Code</button>
   </div>
 
-  <div id="tlvDecoderSection" style="display: none;">
+  <div id="tlvDecoderSection" style="display:none;">
     <div class="center">
-        <img src="https://media1.tenor.com/m/bxeM9N2IXLsAAAAd/osita-osita-iheme.gif" alt="Kitty GIF" style="height: 100px;">
-        <h2>Base64 TLV Decoder</h2>
+      <img src="https://media1.tenor.com/m/bxeM9N2IXLsAAAAd/osita-osita-iheme.gif" alt="Kitty GIF" style="height: 100px;">
+      <h2>Base64 TLV Decoder</h2>
     </div>
     <textarea id="base64Input" placeholder="Paste Base64 here..."></textarea>
     <button onclick="decodeTLV()">Decode</button>
@@ -151,10 +91,10 @@
     <button onclick="showSection('mainMenu')" class="back-button">&#x2190; Back to Menu</button>
   </div>
 
-  <div id="crcCheckerSection" style="display: none;">
+  <div id="crcCheckerSection" style="display:none;">
     <div class="center">
-        <img src="https://media1.tenor.com/m/bxeM9N2IXLsAAAAd/osita-osita-iheme.gif" alt="Kitty GIF" style="height: 100px;">
-        <h2>CRC-16 Check Digit Calculator</h2>
+      <img src="https://media1.tenor.com/m/bxeM9N2IXLsAAAAd/osita-osita-iheme.gif" alt="Kitty GIF" style="height: 100px;">
+      <h2>CRC-16 Check Digit Calculator</h2>
     </div>
     <textarea id="crcInput" placeholder="Enter string for CRC-16..."></textarea>
     <button onclick="calculateCRC16()">Calculate CRC-16</button>
@@ -163,244 +103,70 @@
     <button onclick="showSection('mainMenu')" class="back-button">&#x2190; Back to Menu</button>
   </div>
 
-  <div id="qrCodeSection" style="display: none;">
+  <div id="qrCodeSection" style="display:none;">
     <div class="center">
-        <img src="https://media1.tenor.com/m/bxeM9N2IXLsAAAAd/osita-osita-iheme.gif" alt="Kitty GIF" style="height: 100px;">
-        <h2>TLV EMVCo to QR Code Generator</h2>
+      <img src="https://media1.tenor.com/m/bxeM9N2IXLsAAAAd/osita-osita-iheme.gif" alt="Kitty GIF" style="height: 100px;">
+      <h2>TLV EMVCo to QR Code Generator</h2>
     </div>
     <textarea id="qrInput" placeholder="Paste TLV EMVCo data for QR Code..."></textarea>
     <button onclick="generateQrCodeFeature()">Generate QR Code</button>
-    <div class="qrcode-frame center"><div id="qrcodeDisplay"></div></div>
+    <div class="qrcode-frame center">
+      <div id="qrcodeDisplay"></div>
+      <div id="merchantInfo"></div>
+    </div>
     <hr>
     <button onclick="showSection('mainMenu')" class="back-button">&#x2190; Back to Menu</button>
   </div>
 
   <script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
   <script>
+    /* ——— Tag descriptions for pretty TLV parse ——— */
     const tagDescriptions = {
-      '85': 'Payload Format Indicator',
-      '61': 'Application Template',
-      '50': 'Application Label',
-      '63': 'Application Specific Transparent Template',
-      '9F74': 'Protected Data Envelope',
-      '4F': 'AID',
-      '5A': 'CPAN',
-      '5F20': 'Customer Name',
-      '5F2D': 'Language',
-      '5F50': 'Mail',
-      '9F25': 'Last 4 Digits CPAN'
+      '85':'Payload Format Indicator','61':'Application Template','50':'Application Label','63':'Application Specific Transparent Template','9F74':'Protected Data Envelope','4F':'AID','5A':'CPAN','5F20':'Customer Name','5F2D':'Language','5F50':'Mail','9F25':'Last 4 Digits CPAN'
     };
 
-    let qrcodeInstanceForNewSection = null;
+    let qrcodeInstanceForNewSection=null;
 
-    function showSection(sectionId) {
-      const sections = ['mainMenu', 'tlvDecoderSection', 'crcCheckerSection', 'qrCodeSection'];
-      sections.forEach(id => {
-        document.getElementById(id).style.display = 'none';
-      });
-      document.getElementById(sectionId).style.display = 'block';
+    function showSection(id){['mainMenu','tlvDecoderSection','crcCheckerSection','qrCodeSection'].forEach(s=>document.getElementById(s).style.display='none');document.getElementById(id).style.display='block';if(id==='mainMenu'){['base64Input','crcInput','qrInput'].forEach(i=>document.getElementById(i).value='');['output','description','crcOutput'].forEach(i=>document.getElementById(i).textContent='');document.getElementById('qrcodeDisplay').innerHTML='';document.getElementById('merchantInfo').innerHTML='';qrcodeInstanceForNewSection=null;}else if(id==='qrCodeSection'){document.getElementById('qrcodeDisplay').innerHTML='';document.getElementById('merchantInfo').innerHTML='';qrcodeInstanceForNewSection=null;}}
 
-      if (sectionId === 'mainMenu') {
-          // Clear inputs and outputs but keep greeting intact
-          document.getElementById('base64Input').value = '';
-          document.getElementById('output').textContent = '';
-          document.getElementById('description').textContent = '';
+    document.addEventListener('DOMContentLoaded',()=>{showSection('mainMenu');fetchGreeting();});
 
-          document.getElementById('crcInput').value = '';
-          document.getElementById('crcOutput').textContent = '';
+    function fetchGreeting(){fetch('https://random-animal-api.vercel.app/api/random-animal').then(r=>r.json()).then(d=>{const name=d.city||'Sahabat Kojo Di Wowo';document.getElementById('greeting').innerHTML=`Hi, <span style="color:black;font-weight:bold;">${name}</span>`;}).catch(()=>{document.getElementById('greeting').innerHTML='Hi, <span style="color:black;font-weight:bold;">Sahabat Kojo Di Wowo</span>';});}
 
-          document.getElementById('qrInput').value = '';
-          const qrcodeDiv = document.getElementById('qrcodeDisplay');
-          if (qrcodeDiv) qrcodeDiv.innerHTML = '';
-          qrcodeInstanceForNewSection = null;
-      } else if (sectionId === 'qrCodeSection') {
-          const qrcodeDiv = document.getElementById('qrcodeDisplay');
-          if (qrcodeDiv) qrcodeDiv.innerHTML = '';
-          qrcodeInstanceForNewSection = null;
-      }
-    }
+    /* ——— Generic TLV decoder (for Base64 section) ——— */
+    function decodeTLV(){const b64=document.getElementById('base64Input').value.trim();try{const hex=atob(b64).split('').map(c=>('0'+c.charCodeAt(0).toString(16)).slice(-2)).join('').toUpperCase();const p=parseTLV(hex);document.getElementById('output').innerHTML=format(p);document.getElementById('description').textContent='This is your parsed TLV string:';}catch(e){document.getElementById('output').textContent='❌ Invalid Base64 input';}}
 
-    document.addEventListener('DOMContentLoaded', () => {
-        showSection('mainMenu');
-        fetchGreeting();
-    });
+    function parseTLV(hex){let i=0,res={},keepHex=['4F','9F25'];while(i<hex.length){let tag=hex.substr(i,2);i+=2;if((parseInt(tag,16)&0x1F)===0x1F){while((parseInt(hex.substr(i,2),16)&0x80)===0x80){tag+=hex.substr(i,2);i+=2;}tag+=hex.substr(i,2);i+=2;}let len=parseInt(hex.substr(i,2),16);i+=2;if((len&0x80)!==0){const l=len&0x7F;len=parseInt(hex.substr(i,l*2),16);i+=l*2;}const valHex=hex.substr(i,len*2);i+=len*2;if(tag==='61'||tag==='63'){res[tag]=parseTLV(valHex);}else if(tag==='5A'){res[tag]=valHex.match(/.{2}/g).map(b=>`${(parseInt(b,16)>>4)&0xF}${parseInt(b,16)&0xF}`).join('').replace(/F+$/,'').slice(0,19);}else if(keepHex.includes(tag)){res[tag]=valHex.toUpperCase();}else{res[tag]=valHex.match(/.{2}/g).map(h=>String.fromCharCode(parseInt(h,16))).join('').trim();}}return res;}
 
-    function fetchGreeting() {
-      fetch('https://random-animal-api.vercel.app/api/random-animal')
-        .then(res => res.json())
-        .then(data => {
-          const name = data.city || 'Sahabat Kojo Di Wowo';
-          document.getElementById('greeting').innerHTML = `Hi, <span style="color: black; font-weight: bold;">${name}</span>`;
-        })
-        .catch(() => {
-          const fallback = 'Sahabat Kojo Di Wowo';
-          document.getElementById('greeting').innerHTML = `Hi, <span style="color: black; font-weight: bold;">${fallback}</span>`;
-        });
-    }
+    function format(o,indent=0){const pad='  '.repeat(indent);return Object.entries(o).sort(([a],[b])=>a==='85'?-1:b==='85'?1:0).map(([k,v])=>{const desc=tagDescriptions[k]?` [${tagDescriptions[k]}]`:'';const key=`"${k}${desc}"`;let html;if(typeof v==='object'){html=`{"\n${format(v,indent+1)}\n${pad}}`;}else{html=`<span style="font-weight:bold">${v}</span>`;}const hl=k==='5A'||k==='5F20';return hl?`<span style="font-size:24px;background:#FFFF99;">${pad}${key}: \"${html}\"</span>`:`${pad}${key}: ${typeof v==='object'?html:`\"${html}\"`}`;}).join(',\n');}
 
-    function decodeTLV() {
-      const base64 = document.getElementById('base64Input').value.trim();
-      try {
-        const hex = atob(base64).split('').map(c =>
-          ('0' + c.charCodeAt(0).toString(16)).slice(-2)
-        ).join('').toUpperCase();
-        const parsed = parseTLV(hex);
-        document.getElementById('output').innerHTML = format(parsed);
-        document.getElementById('description').textContent = 'This is your parsed TLV string:';
-      } catch (e) {
-        document.getElementById('output').textContent = '❌ Invalid Base64 input';
-      }
-    }
+    /* ——— CRC‑16 ——— */
+    function crc16(s){let crc=0xFFFF,p=0x1021;for(let i=0;i<s.length;i++){crc^=s.charCodeAt(i)<<8;for(let j=0;j<8;j++){crc=(crc&0x8000)!==0?(crc<<1)^p:crc<<1;}}return crc&0xFFFF;}
 
-    function parseTLV(hex) {
-      let i = 0;
-      const result = {};
-      const keepAsHexTags = ['4F', '9F25'];
+    let originalCrcOutputText='';
+    function calculateCRC16(){const inp=document.getElementById('crcInput').value,el=document.getElementById('crcOutput');if(inp){const r=crc16(inp),hex=('0000'+r.toString(16)).slice(-4).toUpperCase();originalCrcOutputText=hex;el.textContent=hex;}else{originalCrcOutputText='Please enter a string to calculate CRC-16.';el.textContent=originalCrcOutputText;}el.classList.remove('copied');}
 
-      while (i < hex.length) {
-        let tag = hex.substr(i, 2);
-        i += 2;
-        if ((parseInt(tag, 16) & 0x1F) === 0x1F) {
-          while ((parseInt(hex.substr(i, 2), 16) & 0x80) === 0x80) {
-            tag += hex.substr(i, 2);
-            i += 2;
-          }
-          tag += hex.substr(i, 2);
-          i += 2;
-        }
+    function copyCrcResult(){const el=document.getElementById('crcOutput'),txt=el.textContent;if(txt==='Please enter a string to calculate CRC-16.'||txt==='Copied!')return;navigator.clipboard.writeText(txt).then(()=>{el.textContent='Copied!';el.classList.add('copied');setTimeout(()=>{el.textContent=originalCrcOutputText;el.classList.remove('copied');},1500);}).catch(()=>{el.textContent='Copy Failed!';setTimeout(()=>{el.textContent=originalCrcOutputText;},1500);});}
 
-        let lenByte = parseInt(hex.substr(i, 2), 16);
-        i += 2;
-        let length = lenByte;
-        if ((lenByte & 0x80) !== 0) {
-          const lenLen = lenByte & 0x7F;
-          length = parseInt(hex.substr(i, lenLen * 2), 16);
-          i += lenLen * 2;
-        }
+    /* ——— EMVCo QR Generation ——— */
 
-        const valueHex = hex.substr(i, length * 2);
-        i += length * 2;
+    // Recursive parse for tags 26, 51, 62 (and any tag whose value itself is TLV)    
+    function parseEMVCo(tlv){const obj={},needsRecursion=['26','51','62'];let i=0;while(i<tlv.length){const tag=tlv.substr(i,2);const len=parseInt(tlv.substr(i+2,2),10);const val=tlv.substr(i+4,len);i+=4+len;if(needsRecursion.includes(tag)){obj[tag]=parseEMVCo(val);}else{obj[tag]=val;}}return obj;}
 
-        if (tag === '61' || tag === '63') {
-          result[tag] = parseTLV(valueHex);
-        } else if (tag === '5A') {
-          const digits = valueHex.match(/.{2}/g).map(byte => {
-            const high = (parseInt(byte, 16) >> 4) & 0xF;
-            const low = (parseInt(byte, 16) & 0xF);
-            return `${high}${low}`;
-          }).join('').replace(/F+$/, '').slice(0, 19);
-          result[tag] = digits;
-        } else if (keepAsHexTags.includes(tag)) {
-          result[tag] = valueHex.toUpperCase();
-        } else {
-          const ascii = valueHex.match(/.{2}/g).map(h => String.fromCharCode(parseInt(h, 16))).join('').trim();
-          result[tag] = ascii;
-        }
-      }
-      return result;
-    }
+    function cleanIssuer(raw){return raw.replace(/^COM\./i,'').replace(/\.WWW$/i,'');}
 
-    function format(obj, indent = 0) {
-      const pad = '  '.repeat(indent);
-      const entries = Object.entries(obj);
-      entries.sort(([a], [b]) => (a === '85' ? -1 : b === '85' ? 1 : 0));
+    function displayMerchantInfo(parsed){const div=document.getElementById('merchantInfo');const t26=parsed['26']||{},t51=parsed['51']||{},t62=parsed['62']||{};
+      const rows=[
+        ['Merchant ID',t26['02']||''],['Acquirer Name',cleanIssuer(t26['00']||'')||''],['Merchant Name',parsed['59']||''],['Merchant City',parsed['60']||''],['Merchant PAN',t26['01']||''],['NMID',t51['02']||''],['Merchant Type',t26['03']||'']
+      ];
+      let html=rows.map(([l,v])=>`<div><span class=\"label\">${l}:</span> ${v||'<em>N/A</em>'}</div>`).join('');
+      const subTags=Object.keys(t62);
+      if(subTags.length){html+=`<div class=\"section-title\">Additional Data:</div>`;html+=subTags.map(st=>`<div><span class=\"label\">Tag ${st}:</span> ${t62[st]}</div>`).join('');}
+      div.innerHTML=html;}
 
-      return entries.map(([k, v]) => {
-        const desc = tagDescriptions[k] ? ` [${tagDescriptions[k]}]` : '';
-        const keyLabel = `"${k}${desc}"`;
-        let valueHtml;
-        if (typeof v === 'object') {
-          valueHtml = `{"\n${format(v, indent + 1)}\n${pad}}`;
-        } else {
-          valueHtml = `<span style="font-weight:bold">${v}</span>`;
-        }
-        const isHighlighted = (k === '5A' || k === '5F20');
-        const highlightStyle = 'font-size: 24px; background-color: #FFFF99;';
-        if (isHighlighted) {
-            return `<span style="${highlightStyle}">${pad}${keyLabel}: \"${valueHtml}\"</span>`;
-        } else if (typeof v === 'object') {
-            return `${pad}${keyLabel}: ${valueHtml}`;
-        } else {
-            return `${pad}${keyLabel}: \"${valueHtml}\"`;
-        }
-      }).join(',\n');
-    }
-
-    function crc16(dataString) {
-        let crc = 0xFFFF;
-        const polynomial = 0x1021;
-        for (let i = 0; i < dataString.length; i++) {
-            let byte = dataString.charCodeAt(i);
-            crc ^= byte << 8;
-            for (let j = 0; j < 8; j++) {
-                if ((crc & 0x8000) !== 0) {
-                    crc = (crc << 1) ^ polynomial;
-                } else {
-                    crc <<= 1;
-                }
-            }
-        }
-        return crc & 0xFFFF;
-    }
-
-    let originalCrcOutputText = '';
-
-    function calculateCRC16() {
-        const inputString = document.getElementById('crcInput').value;
-        const crcOutputElement = document.getElementById('crcOutput');
-        if (inputString) {
-            const result = crc16(inputString);
-            const hexResult = ('0000' + result.toString(16)).slice(-4).toUpperCase();
-            originalCrcOutputText = hexResult;
-            crcOutputElement.textContent = hexResult;
-        } else {
-            originalCrcOutputText = 'Please enter a string to calculate CRC-16.';
-            crcOutputElement.textContent = originalCrcOutputText;
-        }
-        crcOutputElement.classList.remove('copied');
-    }
-
-    function copyCrcResult() {
-        const crcOutputElement = document.getElementById('crcOutput');
-        const textToCopy = crcOutputElement.textContent;
-        if (textToCopy === 'Please enter a string to calculate CRC-16.' || textToCopy === 'Copied!') {
-            return;
-        }
-        navigator.clipboard.writeText(textToCopy)
-            .then(() => {
-                crcOutputElement.textContent = 'Copied!';
-                crcOutputElement.classList.add('copied');
-                setTimeout(() => {
-                    crcOutputElement.textContent = originalCrcOutputText;
-                    crcOutputElement.classList.remove('copied');
-                }, 1500);
-            })
-            .catch(err => {
-                console.error('Failed to copy text: ', err);
-                crcOutputElement.textContent = 'Copy Failed!';
-                setTimeout(() => {
-                    crcOutputElement.textContent = originalCrcOutputText;
-                }, 1500);
-            });
-    }
-
-    function generateQrCodeFeature() {
-        const inputData = document.getElementById('qrInput').value.trim();
-        const qrcodeDiv = document.getElementById('qrcodeDisplay');
-        qrcodeDiv.innerHTML = '';
-        if (!inputData) {
-            qrcodeDiv.textContent = 'Please paste TLV EMVCo data to generate a QR code.';
-            return;
-        }
-        qrcodeInstanceForNewSection = new QRCode(qrcodeDiv, {
-            text: inputData,
-            width: 256,
-            height: 256,
-            colorDark : '#000000',
-            colorLight : '#ffffff',
-            correctLevel : QRCode.CorrectLevel.H
-        });
-    }
+    function generateQrCodeFeature(){const input=document.getElementById('qrInput').value.trim();const qDiv=document.getElementById('qrcodeDisplay');const mDiv=document.getElementById('merchantInfo');qDiv.innerHTML='';mDiv.innerHTML='';if(!input){qDiv.textContent='Please paste TLV EMVCo data to generate a QR code.';return;}
+      qrcodeInstanceForNewSection=new QRCode(qDiv,{text:input,width:256,height:256,colorDark:'#000',colorLight:'#fff',correctLevel:QRCode.CorrectLevel.H});
+      try{const parsed=parseEMVCo(input);displayMerchantInfo(parsed);}catch(e){console.error('parse EMVCo',e);mDiv.innerHTML='<span style="color:red">Failed to parse merchant info.</span>';}}
   </script>
 </body>
 </html>
