@@ -153,7 +153,7 @@
     // Recursive parse for tags 26, 51, 62 (and any tag whose value itself is TLV)    
     function parseEMVCo(tlv){const obj={},needsRecursion=['26','51','62'];let i=0;while(i<tlv.length){const tag=tlv.substr(i,2);const len=parseInt(tlv.substr(i+2,2),10);const val=tlv.substr(i+4,len);i+=4+len;if(needsRecursion.includes(tag)){obj[tag]=parseEMVCo(val);}else{obj[tag]=val;}}return obj;}
 
-    function cleanIssuer(raw){return raw.replace(/^COM\./i,'').replace(/\.WWW$/i,'');}
+    function cleanIssuer(raw){return raw.replace(/^(?:COM\.|ID\.CO\.)/i, '').replace(/\.WWW$/i,'');}
 
     function displayMerchantInfo(parsed){const div=document.getElementById('merchantInfo');const t26=parsed['26']||{},t51=parsed['51']||{},t62=parsed['62']||{};
       const rows=[
