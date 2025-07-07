@@ -1,172 +1,433 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>TLV Pasta</title>
-  <style>
-    body {
-      font-family: monospace;
-      max-width: 800px;
-      margin: 20px auto;
-      padding: 20px;
-      box-sizing: border-box;
-    }
-
-    .center { text-align: center; }
-
-    img { max-width: 100%; height: auto; }
-
-    textarea {
-      width: 100%; height: 120px; font-family: monospace;
-      margin-bottom: 10px; padding: 10px; font-size: 16px;
-      box-sizing: border-box; resize: none; text-align: left; line-height: 1.5;
-    }
-
-    button {
-      width: 100%; padding: 12px; font-size: 18px; cursor: pointer;
-      background-color: #333; color: #fff; border: none; border-radius: 4px; margin-bottom: 10px;
-    }
-
-    #mainMenu button { margin-top: 10px; font-size: 20px; padding: 15px; }
-
-    .back-button {
-      background-color: #007bff; color: white; padding: 15px 12px;
-      font-size: 20px; border: 1px solid #0056b3;
-      transition: background-color 0.3s ease, border-color 0.3s ease; margin-top: 20px;
-    }
-    .back-button:hover { background-color: #0056b3; border-color: #004085; }
-
-    pre {
-      background: #f4f4f4; padding: 10px; border: 1px solid #ccc;
-      white-space: pre-wrap; word-wrap: break-word; font-size: 20px;
-    }
-
-    #greeting { font-size: 20px; margin-top: 20px; font-weight: bold; }
-    #description { font-size: 16px; margin-bottom: 10px; }
-
-    #crcOutput {
-      font-size: 28px; font-weight: bold; margin-top: 10px; padding: 10px;
-      background-color: #e0ffe0; border: 1px solid #a0c0a0; border-radius: 4px;
-      cursor: pointer; transition: background-color 0.3s ease;
-    }
-    #crcOutput.copied { background-color: #c0ffc0; }
-
-    .qrcode-frame {
-      border: 1px solid #ccc; border-radius: 8px; padding: 15px;
-      box-shadow: 2px 2px 8px rgba(0,0,0,0.1); display: inline-block; margin-top: 20px; text-align: center;
-    }
-
-    #qrcodeDisplay { background-color: white; display: inline-block; }
-    #qrcodeDisplay table, #qrcodeDisplay canvas { margin: 10px auto; display: block; }
-
-    /* ---- NEW: merchant & additional data styling ---- */
-    #merchantInfo { margin-top: 20px; text-align: left; font-size: 18px; line-height: 1.4; word-break: break-word; }
-    #merchantInfo span.label { font-weight: bold; display: inline-block; min-width: 180px; }
-    #merchantInfo .section-title { font-weight: bold; margin-top: 12px; text-decoration: underline; }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>TLV Pasta & QR Scanner</title>
+<style>
+  body {
+    font-family: monospace;
+    max-width: 800px;
+    margin: 20px auto;
+    padding: 20px;
+    box-sizing: border-box;
+  }
+  .center { text-align: center; }
+  textarea {
+    width: 100%; height: 120px; font-family: monospace;
+    margin-bottom: 10px; padding: 10px; font-size: 16px;
+    box-sizing: border-box; resize: none; text-align: left; line-height: 1.5;
+  }
+  button {
+    width: 100%; padding: 12px; font-size: 18px; cursor: pointer;
+    background-color: #333; color: #fff; border: none; border-radius: 4px; margin-bottom: 10px;
+  }
+  #mainMenu button { margin-top: 10px; font-size: 20px; padding: 15px; }
+  .back-button {
+    background-color: #007bff; color: white; padding: 15px 12px;
+    font-size: 20px; border: 1px solid #0056b3;
+    transition: background-color 0.3s ease, border-color 0.3s ease; margin-top: 20px;
+  }
+  .back-button:hover { background-color: #0056b3; border-color: #004085; }
+  pre {
+    background: #f4f4f4; padding: 10px; border: 1px solid #ccc;
+    white-space: pre-wrap; word-wrap: break-word; font-size: 20px;
+  }
+  #crcOutput {
+    font-size: 28px; font-weight: bold; margin-top: 10px; padding: 10px;
+    background-color: #e0ffe0; border: 1px solid #a0c0a0; border-radius: 4px;
+    cursor: pointer; transition: background-color 0.3s ease;
+  }
+  #crcOutput.copied { background-color: #c0ffc0; }
+  .qrcode-frame {
+    border: 1px solid #ccc; border-radius: 8px; padding: 15px;
+    box-shadow: 2px 2px 8px rgba(0,0,0,0.1); display: inline-block; margin-top: 20px; text-align: center;
+  }
+  #qrcodeDisplay { background-color: white; display: inline-block; }
+  #qrcodeDisplay table, #qrcodeDisplay canvas { margin: 10px auto; display: block; }
+  #merchantInfo { margin-top: 20px; text-align: left; font-size: 18px; line-height: 1.4; word-break: break-word; }
+  #merchantInfo span.label { font-weight: bold; display: inline-block; min-width: 180px; }
+  #merchantInfo .section-title { font-weight: bold; margin-top: 12px; text-decoration: underline; }
+  #qrisOutput { margin-top: 10px; }
+  #qrisOutput .error { color: red; }
+</style>
 </head>
 <body>
 
-  <div id="mainMenu" class="center">
-    <h1>TLV & CRC Tool</h1>
-    <img src="https://media1.tenor.com/m/bxeM9N2IXLsAAAAd/osita-osita-iheme.gif" alt="Kitty GIF" style="height: 100px; margin-bottom: 20px;">
-    <div id="greeting"></div>
-    <h2>Select an Option:</h2>
-    <button onclick="showSection('tlvDecoderSection')">Decode Base64</button>
-    <button onclick="showSection('crcCheckerSection')">CRC-16 Check Digit</button>
-    <button onclick="showSection('qrCodeSection')">Generate QR Code</button>
+<!-- MAIN MENU -->
+<div id="mainMenu" class="center">
+  <h1>TLV & CRC Tool</h1>
+  <img src="https://media1.tenor.com/m/bxeM9N2IXLsAAAAd/osita-osita-iheme.gif" alt="Kitty GIF" style="height:100px;margin-bottom:20px;">
+  <div id="greeting"></div>
+  <h2>Select an Option:</h2>
+  <button onclick="showSection('tlvDecoderSection')">Decode Base64</button>
+  <button onclick="showSection('crcCheckerSection')">CRC‑16 Check Digit</button>
+  <button onclick="showSection('qrCodeSection')">Generate QR Code</button>
+  <button onclick="showSection('qrisParserSection')">Parse QRIS</button>
+</div>
+
+<!-- BASE64 TLV DECODER -->
+<div id="tlvDecoderSection" style="display:none;">
+  <div class="center">
+    <img src="https://media1.tenor.com/m/bxeM9N2IXLsAAAAd/osita-osita-iheme.gif" alt="Kitty GIF" style="height:100px;">
+    <h2>Base64 TLV Decoder</h2>
+  </div>
+  <textarea id="base64Input" placeholder="Paste Base64 here..."></textarea>
+  <button onclick="decodeTLV()">Decode</button>
+  <div id="description" class="center"></div>
+  <pre id="output"></pre>
+  <hr>
+  <button onclick="showSection('mainMenu')" class="back-button">← Back to Menu</button>
+</div>
+
+<!-- CRC-16 CHECK DIGIT -->
+<div id="crcCheckerSection" style="display:none;">
+  <div class="center">
+    <img src="https://media1.tenor.com/m/bxeM9N2IXLsAAAAd/osita-osita-iheme.gif" alt="Kitty GIF" style="height:100px;">
+    <h2>CRC‑16 Check Digit Calculator</h2>
+  </div>
+  <textarea id="crcInput" placeholder="Enter string for CRC‑16..."></textarea>
+  <button onclick="calculateCRC16()">Calculate CRC‑16</button>
+  <div id="crcOutput" class="center" onclick="copyCrcResult()"></div>
+  <hr>
+  <button onclick="showSection('mainMenu')" class="back-button">← Back to Menu</button>
+</div>
+
+<!-- QR CODE GENERATOR -->
+<div id="qrCodeSection" style="display:none;">
+  <div class="center">
+    <img src="https://media1.tenor.com/m/bxeM9N2IXLsAAAAd/osita-osita-iheme.gif" alt="Kitty GIF" style="height:100px;">
+    <h2>TLV EMVCo ➜ QR Code</h2>
+  </div>
+  <textarea id="qrInput" placeholder="Paste TLV EMVCo string..."></textarea>
+  <button onclick="generateQrCodeFeature()">Generate QR Code</button>
+  <div class="qrcode-frame center">
+    <div id="qrcodeDisplay"></div>
+    <div id="merchantInfo"></div>
+  </div>
+  <hr>
+  <button onclick="showSection('mainMenu')" class="back-button">← Back to Menu</button>
+</div>
+
+<!-- QRIS PARSER -->
+<div id="qrisParserSection" style="display:none;">
+  <div class="center">
+    <img src="https://media1.tenor.com/m/bxeM9N2IXLsAAAAd/osita-osita-iheme.gif" alt="Kitty GIF" style="height:100px;">
+    <h2>QRIS String / Image Parser</h2>
   </div>
 
-  <div id="tlvDecoderSection" style="display:none;">
-    <div class="center">
-      <img src="https://media1.tenor.com/m/bxeM9N2IXLsAAAAd/osita-osita-iheme.gif" alt="Kitty GIF" style="height: 100px;">
-      <h2>Base64 TLV Decoder</h2>
-    </div>
-    <textarea id="base64Input" placeholder="Paste Base64 here..."></textarea>
-    <button onclick="decodeTLV()">Decode</button>
-    <div id="description" class="center"></div>
-    <pre id="output"></pre>
-    <hr>
-    <button onclick="showSection('mainMenu')" class="back-button">&#x2190; Back to Menu</button>
-  </div>
+  <label for="qrStringInput"><strong>Paste QRIS String:</strong></label>
+  <textarea id="qrStringInput" placeholder="Paste entire QRIS string here..."></textarea>
+  <button onclick="parseQRISFromText()">Parse From Text</button>
 
-  <div id="crcCheckerSection" style="display:none;">
-    <div class="center">
-      <img src="https://media1.tenor.com/m/bxeM9N2IXLsAAAAd/osita-osita-iheme.gif" alt="Kitty GIF" style="height: 100px;">
-      <h2>CRC-16 Check Digit Calculator</h2>
-    </div>
-    <textarea id="crcInput" placeholder="Enter string for CRC-16..."></textarea>
-    <button onclick="calculateCRC16()">Calculate CRC-16</button>
-    <div id="crcOutput" class="center" onclick="copyCrcResult()"></div>
-    <hr>
-    <button onclick="showSection('mainMenu')" class="back-button">&#x2190; Back to Menu</button>
-  </div>
+  <hr>
 
-  <div id="qrCodeSection" style="display:none;">
-    <div class="center">
-      <img src="https://media1.tenor.com/m/bxeM9N2IXLsAAAAd/osita-osita-iheme.gif" alt="Kitty GIF" style="height: 100px;">
-      <h2>TLV EMVCo to QR Code Generator</h2>
-    </div>
-    <textarea id="qrInput" placeholder="Paste TLV EMVCo data for QR Code..."></textarea>
-    <button onclick="generateQrCodeFeature()">Generate QR Code</button>
-    <div class="qrcode-frame center">
-      <div id="qrcodeDisplay"></div>
-      <div id="merchantInfo"></div>
-    </div>
-    <hr>
-    <button onclick="showSection('mainMenu')" class="back-button">&#x2190; Back to Menu</button>
-  </div>
+  <pre id="qrisOutput"></pre>
+  <hr>
+  <button onclick="showSection('mainMenu')" class="back-button">← Back to Menu</button>
+</div>
 
-  <script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
-  <script>
-    /* ——— Tag descriptions for pretty TLV parse ——— */
-    const tagDescriptions = {
-      '85':'Payload Format Indicator','61':'Application Template','50':'Application Label','63':'Application Specific Transparent Template','9F74':'Protected Data Envelope','4F':'AID','5A':'CPAN','5F20':'Customer Name','5F2D':'Language','5F50':'Mail','9F25':'Last 4 Digits CPAN'
-    };
+<!-- LIBRARIES -->
+<script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
+<script src="https://unpkg.com/qr-scanner@1.4.2/qr-scanner.umd.min.js"></script>
 
-    let qrcodeInstanceForNewSection=null;
+<script>
+  // Set worker path explicitly to avoid CORS errors
+  QrScanner.WORKER_PATH = 'https://unpkg.com/qr-scanner@1.4.2/qr-scanner-worker.min.js';
 
-    function showSection(id){['mainMenu','tlvDecoderSection','crcCheckerSection','qrCodeSection'].forEach(s=>document.getElementById(s).style.display='none');document.getElementById(id).style.display='block';if(id==='mainMenu'){['base64Input','crcInput','qrInput'].forEach(i=>document.getElementById(i).value='');['output','description','crcOutput'].forEach(i=>document.getElementById(i).textContent='');document.getElementById('qrcodeDisplay').innerHTML='';document.getElementById('merchantInfo').innerHTML='';qrcodeInstanceForNewSection=null;}else if(id==='qrCodeSection'){document.getElementById('qrcodeDisplay').innerHTML='';document.getElementById('merchantInfo').innerHTML='';qrcodeInstanceForNewSection=null;}}
+  // Tag descriptions
+  const tagDescriptions = {
+    '85':'Payload Format Indicator',
+    '61':'Postal Code',
+    '50':'Application Label',
+    '63':'Application Specific Transparent Template',
+    '9F74':'Protected Data Envelope',
+    '4F':'AID',
+    '5A':'CPAN',
+    '5F20':'Customer Name',
+    '5F2D':'Language',
+    '5F50':'Mail',
+    '9F25':'Last 4 Digits CPAN',
+    // QRIS
+    '00':'Payload Format Indicator',
+    '01':'Point of Initiation Method',
+    '26':'Merchant Account (Acquirer Specific)',
+    '51':'Merchant Additional Data',
+    '52':'Merchant Category Code',
+    '53':'Transaction Currency',
+    '54':'Transaction Amount',
+    '55':'Tip/Convenience Indicator',
+    '56':'Value of Convenience Fee',
+    '57':'Country Code',
+    '58':'Merchant Country Code',
+    '59':'Merchant Name',
+    '60':'Merchant City',
+    '62':'Additional Data Field',
+    '63':'CRC'
+  };
 
-    document.addEventListener('DOMContentLoaded',()=>{showSection('mainMenu');fetchGreeting();});
+  const subtagDescriptions = {
+    '26': {
+      '00': 'Acquirer Reverse Domain',
+      '01': 'Merchant PAN',
+      '02': 'Merchant ID',
+      '03': 'Merchant Criteria'
+    },
+    '51': {
+      '00': 'QRIS Reverse Domain',
+      '02': 'NMID',
+      '03': 'Merchant Criteria'
+    },
+    '62': {
+      '01': 'Bill Number',
+      '02': 'Mobile Number',
+      '03': 'Store Label',
+      '04': 'Loyalty Number',
+      '05': 'Reference Label',
+      '06': 'Customer Label',
+      '07': 'Terminal Label',
+      '08': 'Purpose of Transaction',
+      '09': 'Additional Consumer Data'
+      // Other subtags default to Application Label
+    }
+  };
 
-    function fetchGreeting(){fetch('https://random-animal-api.vercel.app/api/random-animal').then(r=>r.json()).then(d=>{const name=d.city||'Sahabat Kojo Di Wowo';document.getElementById('greeting').innerHTML=`Hi, <span style="color:black;font-weight:bold;">${name}</span>`;}).catch(()=>{document.getElementById('greeting').innerHTML='Hi, <span style="color:black;font-weight:bold;">Sahabat Kojo Di Wowo</span>';});}
+  // Navigation helper
+  function showSection(id) {
+    ['mainMenu','tlvDecoderSection','crcCheckerSection','qrCodeSection','qrisParserSection']
+      .forEach(s => document.getElementById(s).style.display = 'none');
+    document.getElementById(id).style.display = 'block';
 
-    /* ——— Generic TLV decoder (for Base64 section) ——— */
-    function decodeTLV(){const b64=document.getElementById('base64Input').value.trim();try{const hex=atob(b64).split('').map(c=>('0'+c.charCodeAt(0).toString(16)).slice(-2)).join('').toUpperCase();const p=parseTLV(hex);document.getElementById('output').innerHTML=format(p);document.getElementById('description').textContent='This is your parsed TLV string:';}catch(e){document.getElementById('output').textContent='❌ Invalid Base64 input';}}
+    if (id === 'mainMenu') {
+      ['base64Input','crcInput','qrInput','qrStringInput'].forEach(id => {
+        const el = document.getElementById(id); if(el) el.value = '';
+      });
+      ['output','description','crcOutput','qrisOutput'].forEach(id => {
+        const el = document.getElementById(id); if(el) el.textContent = '';
+      });
+      document.getElementById('qrcodeDisplay').innerHTML = '';
+      document.getElementById('merchantInfo').innerHTML = '';
+    } else if (id === 'qrCodeSection') {
+      document.getElementById('qrcodeDisplay').innerHTML = '';
+      document.getElementById('merchantInfo').innerHTML = '';
+    }
+  }
 
-    function parseTLV(hex){let i=0,res={},keepHex=['4F','9F25'];while(i<hex.length){let tag=hex.substr(i,2);i+=2;if((parseInt(tag,16)&0x1F)===0x1F){while((parseInt(hex.substr(i,2),16)&0x80)===0x80){tag+=hex.substr(i,2);i+=2;}tag+=hex.substr(i,2);i+=2;}let len=parseInt(hex.substr(i,2),16);i+=2;if((len&0x80)!==0){const l=len&0x7F;len=parseInt(hex.substr(i,l*2),16);i+=l*2;}const valHex=hex.substr(i,len*2);i+=len*2;if(tag==='61'||tag==='63'){res[tag]=parseTLV(valHex);}else if(tag==='5A'){res[tag]=valHex.match(/.{2}/g).map(b=>`${(parseInt(b,16)>>4)&0xF}${parseInt(b,16)&0xF}`).join('').replace(/F+$/,'').slice(0,19);}else if(keepHex.includes(tag)){res[tag]=valHex.toUpperCase();}else{res[tag]=valHex.match(/.{2}/g).map(h=>String.fromCharCode(parseInt(h,16))).join('').trim();}}return res;}
+  // Greeting
+  document.addEventListener('DOMContentLoaded', () => {
+    showSection('mainMenu');
+    fetch('https://random-animal-api.vercel.app/api/random-animal')
+      .then(r => r.json())
+      .then(d => {
+        const name = d.city || 'Sahabat Kojo Di Wowo';
+        document.getElementById('greeting').innerHTML = `Hi, <span style="color:black;font-weight:bold;">${name}</span>`;
+      })
+      .catch(() => {
+        document.getElementById('greeting').innerHTML = 'Hi, <span style="color:black;font-weight:bold;">Sahabat Kojo Di Wowo</span>';
+      });
+  });
 
-    function format(o,indent=0){const pad='  '.repeat(indent);return Object.entries(o).sort(([a],[b])=>a==='85'?-1:b==='85'?1:0).map(([k,v])=>{const desc=tagDescriptions[k]?` [${tagDescriptions[k]}]`:'';const key=`"${k}${desc}"`;let html;if(typeof v==='object'){html=`{"\n${format(v,indent+1)}\n${pad}}`;}else{html=`<span style="font-weight:bold">${v}</span>`;}const hl=k==='5A'||k==='5F20';return hl?`<span style="font-size:24px;background:#FFFF99;">${pad}${key}: \"${html}\"</span>`:`${pad}${key}: ${typeof v==='object'?html:`\"${html}\"`}`;}).join(',\n');}
+  // TLV Base64 decoder
+  function decodeTLV() {
+    const b64 = document.getElementById('base64Input').value.trim();
+    try {
+      const hex = atob(b64).split('').map(c => ('0'+c.charCodeAt(0).toString(16)).slice(-2)).join('').toUpperCase();
+      const parsed = parseTLV(hex);
+      document.getElementById('output').innerHTML = format(parsed);
+      document.getElementById('description').textContent = 'This is your parsed TLV string:';
+    } catch {
+      document.getElementById('output').textContent = '❌ Invalid Base64 input';
+    }
+  }
 
-    /* ——— CRC‑16 ——— */
-    function crc16(s){let crc=0xFFFF,p=0x1021;for(let i=0;i<s.length;i++){crc^=s.charCodeAt(i)<<8;for(let j=0;j<8;j++){crc=(crc&0x8000)!==0?(crc<<1)^p:crc<<1;}}return crc&0xFFFF;}
+  // Recursive TLV parser
+  function parseTLV(hex) {
+    let i = 0, res = {}, keepHex = ['4F','9F25'];
+    while (i < hex.length) {
+      let tag = hex.substr(i,2); i += 2;
+      if ((parseInt(tag,16) & 0x1F) === 0x1F) {
+        while ((parseInt(hex.substr(i,2),16) & 0x80) === 0x80) { tag += hex.substr(i,2); i += 2; }
+        tag += hex.substr(i,2); i += 2;
+      }
+      let len = parseInt(hex.substr(i,2),16); i += 2;
+      if ((len & 0x80) !== 0) {
+        const l = len & 0x7F;
+        len = parseInt(hex.substr(i,l*2),16); i += l*2;
+      }
+      const valHex = hex.substr(i,len*2); i += len*2;
+      if (tag === '61' || tag === '63') {
+        res[tag] = parseTLV(valHex);
+      } else if (tag === '5A') {
+        res[tag] = valHex.match(/.{2}/g).map(b => `${(parseInt(b,16)>>4)&0xF}${parseInt(b,16)&0xF}`).join('').replace(/F+$/,'').slice(0,19);
+      } else if (keepHex.includes(tag)) {
+        res[tag] = valHex.toUpperCase();
+      } else {
+        res[tag] = valHex.match(/.{2}/g).map(h => String.fromCharCode(parseInt(h,16))).join('').trim();
+      }
+    }
+    return res;
+  }
 
-    let originalCrcOutputText='';
-    function calculateCRC16(){const inp=document.getElementById('crcInput').value,el=document.getElementById('crcOutput');if(inp){const r=crc16(inp),hex=('0000'+r.toString(16)).slice(-4).toUpperCase();originalCrcOutputText=hex;el.textContent=hex;}else{originalCrcOutputText='Please enter a string to calculate CRC-16.';el.textContent=originalCrcOutputText;}el.classList.remove('copied');}
+  // Format with tag/subtag descriptions
+  function format(obj, indent=0, parentTag=null) {
+    const pad = '  '.repeat(indent);
+    const priority = t => (t === '00' ? 0 : t === '01' ? 1 : t === '26' ? 2 : t === '85' ? 3 : 4);
+    return Object.entries(obj)
+      .sort(([a],[b]) => {
+        const pa = priority(a), pb = priority(b);
+        return pa === pb ? a.localeCompare(b) : pa - pb;
+      })
+      .map(([k,v]) => {
+        let desc = '';
+        if (parentTag && subtagDescriptions[parentTag] && subtagDescriptions[parentTag][k]) {
+          desc = ` [${subtagDescriptions[parentTag][k]}]`;
+        } else if (parentTag === '62') {
+          desc = ` [Application Label]`;
+        } else if (tagDescriptions[k]) {
+          desc = ` [${tagDescriptions[k]}]`;
+        }
+        const key = `"${k}${desc}"`;
+        let html = typeof v === 'object'
+          ? `{\n${format(v, indent+1, k)}\n${pad}}`
+          : `<span style="font-weight:bold">${v}</span>`;
+        const hl = (k === '5A' || k === '5F20');
+        return hl
+          ? `<span style="font-size:24px;background:#FFFF99;">${pad}${key}: "${html}"</span>`
+          : `${pad}${key}: ${typeof v === 'object' ? html : `"${html}"`}`;
+      })
+      .join(',\n');
+  }
 
-    function copyCrcResult(){const el=document.getElementById('crcOutput'),txt=el.textContent;if(txt==='Please enter a string to calculate CRC-16.'||txt==='Copied!')return;navigator.clipboard.writeText(txt).then(()=>{el.textContent='Copied!';el.classList.add('copied');setTimeout(()=>{el.textContent=originalCrcOutputText;el.classList.remove('copied');},1500);}).catch(()=>{el.textContent='Copy Failed!';setTimeout(()=>{el.textContent=originalCrcOutputText;},1500);});}
+  // CRC-16 calculator
+  function crc16(str) {
+    let crc = 0xFFFF, poly = 0x1021;
+    for (let c of str) {
+      crc ^= c.charCodeAt(0) << 8;
+      for (let i=0; i<8; i++)
+        crc = (crc & 0x8000) ? ((crc << 1) ^ poly) & 0xFFFF : (crc << 1) & 0xFFFF;
+    }
+    return crc & 0xFFFF;
+  }
 
-    /* ——— EMVCo QR Generation ——— */
+  let originalCrcText = '';
+  function calculateCRC16() {
+    const inp = document.getElementById('crcInput').value,
+          out = document.getElementById('crcOutput');
+    if (inp) {
+      const val = ('0000' + crc16(inp).toString(16)).slice(-4).toUpperCase();
+      originalCrcText = val; out.textContent = val;
+    } else {
+      originalCrcText = 'Please enter a string to calculate CRC‑16.';
+      out.textContent = originalCrcText;
+    }
+    out.classList.remove('copied');
+  }
+  function copyCrcResult() {
+    const out = document.getElementById('crcOutput'), txt = out.textContent;
+    if (txt === 'Copied!' || txt.startsWith('Please')) return;
+    navigator.clipboard.writeText(txt)
+      .then(() => {
+        out.textContent = 'Copied!';
+        out.classList.add('copied');
+        setTimeout(() => { out.textContent = originalCrcText; out.classList.remove('copied'); }, 1500);
+      })
+      .catch(() => {
+        out.textContent = 'Copy failed';
+        setTimeout(() => { out.textContent = originalCrcText; }, 1500);
+      });
+  }
 
-    // Recursive parse for tags 26, 51, 62 (and any tag whose value itself is TLV)    
-    function parseEMVCo(tlv){const obj={},needsRecursion=['26','51','62'];let i=0;while(i<tlv.length){const tag=tlv.substr(i,2);const len=parseInt(tlv.substr(i+2,2),10);const val=tlv.substr(i+4,len);i+=4+len;if(needsRecursion.includes(tag)){obj[tag]=parseEMVCo(val);}else{obj[tag]=val;}}return obj;}
+  // EMVCo TLV parser for QR code generation and merchant info display
+  function parseEMVCo(tlv) {
+    const recurseTags = ['26','51','62'];
+    const obj = {}; let i=0;
+    while(i < tlv.length) {
+      const tag = tlv.substr(i,2);
+      const len = parseInt(tlv.substr(i+2,2),10);
+      const val = tlv.substr(i+4,len);
+      i += 4 + len;
+      obj[tag] = recurseTags.includes(tag) ? parseEMVCo(val) : val;
+    }
+    return obj;
+  }
+  function cleanIssuer(raw) {
+    return raw.replace(/^(?:COM\\.|ID\\.CO\\.)/i,'').replace(/\\.WWW$/i,'');
+  }
+  function displayMerchantInfo(parsed) {
+    const div = document.getElementById('merchantInfo');
+    const t26 = parsed['26'] || {}, t51 = parsed['51'] || {}, t62 = parsed['62'] || {};
+    const rows = [
+      ['Merchant ID', t26['02'] || ''],
+      ['Acquirer Name', cleanIssuer(t26['00'] || '') || ''],
+      ['Merchant Name', parsed['59'] || ''],
+      ['Merchant City', parsed['60'] || ''],
+      ['Merchant PAN',  t26['01'] || ''],
+      ['NMID',          t51['02'] || ''],
+      ['Merchant Type', t26['03'] || '']
+    ];
+    let html = rows.map(([l,v]) => `<div><span class="label">${l}:</span> ${v || '<em>N/A</em>'}</div>`).join('');
+    const subs = Object.keys(t62);
+    if (subs.length) {
+      html += '<div class="section-title">Additional Data:</div>';
+      html += subs.map(st => `<div><span class="label">Tag ${st}:</span> ${t62[st]}</div>`).join('');
+    }
+    div.innerHTML = html;
+  }
+  function generateQrCodeFeature() {
+    const input = document.getElementById('qrInput').value.trim(),
+          qDiv = document.getElementById('qrcodeDisplay'),
+          mDiv = document.getElementById('merchantInfo');
+    qDiv.innerHTML = ''; mDiv.innerHTML = '';
+    if (!input) {
+      qDiv.textContent = 'Please paste TLV EMVCo data first.';
+      return;
+    }
+    new QRCode(qDiv, {text: input, width: 256, height: 256, colorDark: '#000', colorLight: '#fff', correctLevel: QRCode.CorrectLevel.H});
+    try {
+      displayMerchantInfo(parseEMVCo(input));
+    } catch {
+      mDiv.innerHTML = '<span style="color:red">Failed to parse merchant info.</span>';
+    }
+  }
 
-    function cleanIssuer(raw){return raw.replace(/^(?:COM\.|ID\.CO\.)/i, '').replace(/\.WWW$/i,'');}
+  // QRIS parser from string
+  function parseQRISString(str) {
+    try {
+      return {parsed: parseEMVCo(str), error: null};
+    } catch (e) {
+      return {parsed: null, error: 'Failed to parse QRIS string: ' + e.message};
+    }
+  }
+  function parseQRISFromText() {
+    const input = document.getElementById('qrStringInput').value.trim(),
+          out = document.getElementById('qrisOutput');
+    out.textContent = '';
+    if (!input) {
+      out.innerHTML = '<span class="error">Paste a QRIS string first.</span>';
+      return;
+    }
+    const {parsed, error} = parseQRISString(input);
+    out.innerHTML = error ? `<span class="error">${error}</span>` : format(parsed);
+  }
 
-    function displayMerchantInfo(parsed){const div=document.getElementById('merchantInfo');const t26=parsed['26']||{},t51=parsed['51']||{},t62=parsed['62']||{};
-      const rows=[
-        ['Merchant ID',t26['02']||''],['Acquirer Name',cleanIssuer(t26['00']||'')||''],['Merchant Name',parsed['59']||''],['Merchant City',parsed['60']||''],['Merchant PAN',t26['01']||''],['NMID',t51['02']||''],['Merchant Type',t26['03']||'']
-      ];
-      let html=rows.map(([l,v])=>`<div><span class=\"label\">${l}:</span> ${v||'<em>N/A</em>'}</div>`).join('');
-      const subTags=Object.keys(t62);
-      if(subTags.length){html+=`<div class=\"section-title\">Additional Data:</div>`;html+=subTags.map(st=>`<div><span class=\"label\">Tag ${st}:</span> ${t62[st]}</div>`).join('');}
-      div.innerHTML=html;}
+  // QRIS parser from uploaded image using qr-scanner library (function remains but UI removed)
+  async function parseQRISFromImage() {
+    const fileInput = document.getElementById('qrImageInput');
+    const out = document.getElementById('qrisOutput');
+    out.textContent = '';
+    if (!fileInput.files.length) {
+      out.innerHTML = '<span class="error">Select an image first.</span>';
+      return;
+    }
+    try {
+      const data = await QrScanner.scanImage(fileInput.files[0], {returnDetailedScanResult: false});
+      document.getElementById('qrStringInput').value = data;
+      parseQRISFromText();
+    } catch (e) {
+      out.innerHTML = `<span class="error">Failed to decode QR image: ${e}</span>`;
+    }
+  }
+</script>
 
-    function generateQrCodeFeature(){const input=document.getElementById('qrInput').value.trim();const qDiv=document.getElementById('qrcodeDisplay');const mDiv=document.getElementById('merchantInfo');qDiv.innerHTML='';mDiv.innerHTML='';if(!input){qDiv.textContent='Please paste TLV EMVCo data to generate a QR code.';return;}
-      qrcodeInstanceForNewSection=new QRCode(qDiv,{text:input,width:256,height:256,colorDark:'#000',colorLight:'#fff',correctLevel:QRCode.CorrectLevel.H});
-      try{const parsed=parseEMVCo(input);displayMerchantInfo(parsed);}catch(e){console.error('parse EMVCo',e);mDiv.innerHTML='<span style="color:red">Failed to parse merchant info.</span>';}}
-  </script>
 </body>
 </html>
