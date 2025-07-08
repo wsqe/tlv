@@ -57,7 +57,14 @@
 <!-- MAIN MENU -->
 <div id="mainMenu" class="center">
   <h1>TLV & CRC Tool</h1>
-  <img src="https://media1.tenor.com/m/bxeM9N2IXLsAAAAd/osita-osita-iheme.gif" alt="Kitty GIF" style="height:100px;margin-bottom:20px;">
+<dotlottie-player
+  src="https://lottie.host/ef7ff1d9-c83e-460a-b552-5644f8b8400e/ApV3K0RwWY.lottie"
+  background="transparent"
+  speed="1"
+  style="display:block;margin:0 auto;width:200px;height:200px;"
+  loop
+  autoplay
+></dotlottie-player>
   <div id="greeting"></div>
   <h2>Select an Option:</h2>
   <button onclick="showSection('tlvDecoderSection')">Decode Base64</button>
@@ -69,7 +76,15 @@
 <!-- BASE64 TLV DECODER -->
 <div id="tlvDecoderSection" style="display:none;">
   <div class="center">
-    <img src="https://media1.tenor.com/m/bxeM9N2IXLsAAAAd/osita-osita-iheme.gif" alt="Kitty GIF" style="height:100px;">
+<dotlottie-player
+  src="https://lottie.host/ef7ff1d9-c83e-460a-b552-5644f8b8400e/ApV3K0RwWY.lottie"
+  background="transparent"
+  speed="1"
+  style="display:block;margin:0 auto;width:200px;height:200px;"
+  loop
+  autoplay
+></dotlottie-player>
+
     <h2>Base64 TLV Decoder</h2>
   </div>
   <textarea id="base64Input" placeholder="Paste Base64 here..."></textarea>
@@ -83,7 +98,15 @@
 <!-- CRC-16 CHECK DIGIT -->
 <div id="crcCheckerSection" style="display:none;">
   <div class="center">
-    <img src="https://media1.tenor.com/m/bxeM9N2IXLsAAAAd/osita-osita-iheme.gif" alt="Kitty GIF" style="height:100px;">
+<dotlottie-player
+  src="https://lottie.host/ef7ff1d9-c83e-460a-b552-5644f8b8400e/ApV3K0RwWY.lottie"
+  background="transparent"
+  speed="1"
+  style="display:block;margin:0 auto;width:200px;height:200px;"
+  loop
+  autoplay
+></dotlottie-player>
+
     <h2>CRC‑16 Check Digit Calculator</h2>
   </div>
   <textarea id="crcInput" placeholder="Enter string for CRC‑16..."></textarea>
@@ -96,7 +119,15 @@
 <!-- QR CODE GENERATOR -->
 <div id="qrCodeSection" style="display:none;">
   <div class="center">
-    <img src="https://media1.tenor.com/m/bxeM9N2IXLsAAAAd/osita-osita-iheme.gif" alt="Kitty GIF" style="height:100px;">
+<dotlottie-player
+  src="https://lottie.host/ef7ff1d9-c83e-460a-b552-5644f8b8400e/ApV3K0RwWY.lottie"
+  background="transparent"
+  speed="1"
+  style="display:block;margin:0 auto;width:200px;height:200px;"
+  loop
+  autoplay
+></dotlottie-player>
+
     <h2>TLV EMVCo ➜ QR Code</h2>
   </div>
   <textarea id="qrInput" placeholder="Paste TLV EMVCo string..."></textarea>
@@ -112,7 +143,15 @@
 <!-- QRIS PARSER -->
 <div id="qrisParserSection" style="display:none;">
   <div class="center">
-    <img src="https://media1.tenor.com/m/bxeM9N2IXLsAAAAd/osita-osita-iheme.gif" alt="Kitty GIF" style="height:100px;">
+<dotlottie-player
+  src="https://lottie.host/ef7ff1d9-c83e-460a-b552-5644f8b8400e/ApV3K0RwWY.lottie"
+  background="transparent"
+  speed="1"
+  style="display:block;margin:0 auto;width:200px;height:200px;"
+  loop
+  autoplay
+></dotlottie-player>
+
     <h2>QRIS String / Image Parser</h2>
   </div>
 
@@ -130,6 +169,10 @@
 <!-- LIBRARIES -->
 <script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
 <script src="https://unpkg.com/qr-scanner@1.4.2/qr-scanner.umd.min.js"></script>
+<script
+  src="https://unpkg.com/@dotlottie/player-component@2.7.12/dist/dotlottie-player.mjs"
+  type="module"
+></script>
 
 <script>
   // Set worker path explicitly to avoid CORS errors
