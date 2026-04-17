@@ -43,7 +43,7 @@
     border: 1px solid #ccc; border-radius: 8px; padding: 15px;
     box-shadow: 2px 2px 8px rgba(0,0,0,0.1); display: inline-block; margin-top: 20px; text-align: center;
   }
-  #qrcodeDisplay { background-color: white; display: inline-block; }
+  #qrcodeDisplay { background-color: white; display: inline-block; min-height: 100px; }
   #qrcodeDisplay table, #qrcodeDisplay canvas { margin: 10px auto; display: block; }
   #merchantInfo { margin-top: 20px; text-align: left; font-size: 18px; line-height: 1.4; word-break: break-word; }
   #merchantInfo span.label { font-weight: bold; display: inline-block; min-width: 180px; }
@@ -54,7 +54,6 @@
 </head>
 <body>
 
-<!-- MAIN MENU -->
 <div id="mainMenu" class="center">
   <h1>TLV & CRC Tool</h1>
 <dotlottie-player
@@ -73,7 +72,6 @@
   <button onclick="showSection('qrisParserSection')">Parse QRIS</button>
 </div>
 
-<!-- BASE64 TLV DECODER -->
 <div id="tlvDecoderSection" style="display:none;">
   <div class="center">
 <dotlottie-player
@@ -84,7 +82,6 @@
   loop
   autoplay
 ></dotlottie-player>
-
     <h2>Base64 TLV Decoder</h2>
   </div>
   <textarea id="base64Input" placeholder="Paste Base64 here..."></textarea>
@@ -95,7 +92,6 @@
   <button onclick="showSection('mainMenu')" class="back-button">← Back to Menu</button>
 </div>
 
-<!-- CRC-16 CHECK DIGIT -->
 <div id="crcCheckerSection" style="display:none;">
   <div class="center">
 <dotlottie-player
@@ -106,7 +102,6 @@
   loop
   autoplay
 ></dotlottie-player>
-
     <h2>CRC‑16 Check Digit Calculator</h2>
   </div>
   <textarea id="crcInput" placeholder="Enter string for CRC‑16..."></textarea>
@@ -116,7 +111,6 @@
   <button onclick="showSection('mainMenu')" class="back-button">← Back to Menu</button>
 </div>
 
-<!-- QR CODE GENERATOR -->
 <div id="qrCodeSection" style="display:none;">
   <div class="center">
 <dotlottie-player
@@ -127,7 +121,6 @@
   loop
   autoplay
 ></dotlottie-player>
-
     <h2>TLV EMVCo ➜ QR Code</h2>
   </div>
   <textarea id="qrInput" placeholder="Paste TLV EMVCo string..."></textarea>
@@ -140,7 +133,6 @@
   <button onclick="showSection('mainMenu')" class="back-button">← Back to Menu</button>
 </div>
 
-<!-- QRIS PARSER -->
 <div id="qrisParserSection" style="display:none;">
   <div class="center">
 <dotlottie-player
@@ -151,112 +143,59 @@
   loop
   autoplay
 ></dotlottie-player>
-
     <h2>QRIS String / Image Parser</h2>
   </div>
-
   <label for="qrStringInput"><strong>Paste QRIS String:</strong></label>
   <textarea id="qrStringInput" placeholder="Paste entire QRIS string here..."></textarea>
   <button onclick="parseQRISFromText()">Parse From Text</button>
-
   <hr>
-
   <pre id="qrisOutput"></pre>
   <hr>
   <button onclick="showSection('mainMenu')" class="back-button">← Back to Menu</button>
 </div>
 
-<!-- LIBRARIES -->
 <script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
 <script src="https://unpkg.com/qr-scanner@1.4.2/qr-scanner.umd.min.js"></script>
-<script
-  src="https://unpkg.com/@dotlottie/player-component@2.7.12/dist/dotlottie-player.mjs"
-  type="module"
-></script>
+<script src="https://unpkg.com/@dotlottie/player-component@2.7.12/dist/dotlottie-player.mjs" type="module"></script>
 
 <script>
-  // Set worker path explicitly to avoid CORS errors
   QrScanner.WORKER_PATH = 'https://unpkg.com/qr-scanner@1.4.2/qr-scanner-worker.min.js';
 
-  // Tag descriptions
   const tagDescriptions = {
-    '85':'Payload Format Indicator',
-    '61':'Postal Code',
-    '50':'Application Label',
-    '63':'Application Specific Transparent Template',
-    '9F74':'Protected Data Envelope',
-    '4F':'AID',
-    '5A':'CPAN',
-    '5F20':'Customer Name',
-    '5F2D':'Language',
-    '5F50':'Mail',
-    '9F25':'Last 4 Digits CPAN',
-    // QRIS
-    '00':'Payload Format Indicator',
-    '01':'Point of Initiation Method',
-    '26':'Merchant Account (Acquirer Specific)',
-    '51':'Merchant Additional Data',
-    '52':'Merchant Category Code',
-    '53':'Transaction Currency',
-    '54':'Transaction Amount',
-    '55':'Tip/Convenience Indicator',
-    '56':'Value of Convenience Fee',
-    '57':'Fee Percentage',
-    '58':'Merchant Country Code',
-    '59':'Merchant Name',
-    '60':'Merchant City',
-    '62':'Additional Data Field',
-    '63':'CRC'
+    '85':'Payload Format Indicator', '61':'Postal Code', '50':'Application Label',
+    '63':'Application Specific Transparent Template', '9F74':'Protected Data Envelope',
+    '4F':'AID', '5A':'CPAN', '5F20':'Customer Name', '5F2D':'Language', '5F50':'Mail',
+    '9F25':'Last 4 Digits CPAN', '00':'Payload Format Indicator', '01':'Point of Initiation Method',
+    '26':'Merchant Account (Acquirer Specific)', '51':'Merchant Additional Data',
+    '52':'Merchant Category Code', '53':'Transaction Currency', '54':'Transaction Amount',
+    '55':'Tip/Convenience Indicator', '56':'Value of Convenience Fee', '57':'Fee Percentage',
+    '58':'Merchant Country Code', '59':'Merchant Name', '60':'Merchant City',
+    '62':'Additional Data Field', '63':'CRC'
   };
 
   const subtagDescriptions = {
-    '26': {
-      '00': 'Acquirer Reverse Domain',
-      '01': 'Merchant PAN',
-      '02': 'Merchant ID',
-      '03': 'Merchant Criteria'
-    },
-    '51': {
-      '00': 'QRIS Reverse Domain',
-      '02': 'NMID',
-      '03': 'Merchant Criteria'
-    },
-    '62': {
-      '01': 'Bill Number',
-      '02': 'Mobile Number',
-      '03': 'Store Label',
-      '04': 'Loyalty Number',
-      '05': 'Reference Label',
-      '06': 'Customer Label',
-      '07': 'Terminal Label',
-      '08': 'Purpose of Transaction',
-      '09': 'Additional Consumer Data'
-      // Other subtags default to Application Label
-    }
+    '26': { '00': 'Acquirer Reverse Domain', '01': 'Merchant PAN', '02': 'Merchant ID', '03': 'Merchant Criteria' },
+    '51': { '00': 'QRIS Reverse Domain', '02': 'NMID', '03': 'Merchant Criteria' },
+    '62': { '01': 'Bill Number', '02': 'Mobile Number', '03': 'Store Label', '04': 'Loyalty Number', '05': 'Reference Label', '06': 'Customer Label', '07': 'Terminal Label', '08': 'Purpose of Transaction', '09': 'Additional Consumer Data' }
   };
 
-  // Navigation helper
   function showSection(id) {
     ['mainMenu','tlvDecoderSection','crcCheckerSection','qrCodeSection','qrisParserSection']
       .forEach(s => document.getElementById(s).style.display = 'none');
     document.getElementById(id).style.display = 'block';
 
     if (id === 'mainMenu') {
-      ['base64Input','crcInput','qrInput','qrStringInput'].forEach(id => {
-        const el = document.getElementById(id); if(el) el.value = '';
+      ['base64Input','crcInput','qrInput','qrStringInput'].forEach(i => {
+        const el = document.getElementById(i); if(el) el.value = '';
       });
-      ['output','description','crcOutput','qrisOutput'].forEach(id => {
-        const el = document.getElementById(id); if(el) el.textContent = '';
+      ['output','description','crcOutput','qrisOutput'].forEach(i => {
+        const el = document.getElementById(i); if(el) el.textContent = '';
       });
-      document.getElementById('qrcodeDisplay').innerHTML = '';
-      document.getElementById('merchantInfo').innerHTML = '';
-    } else if (id === 'qrCodeSection') {
       document.getElementById('qrcodeDisplay').innerHTML = '';
       document.getElementById('merchantInfo').innerHTML = '';
     }
   }
 
-  // Greeting
   document.addEventListener('DOMContentLoaded', () => {
     showSection('mainMenu');
     fetch('https://random-animal-api.vercel.app/api/random-animal')
@@ -270,12 +209,11 @@
       });
   });
 
-  // TLV Base64 decoder
   function decodeTLV() {
     const b64 = document.getElementById('base64Input').value.trim();
     try {
       const hex = atob(b64).split('').map(c => ('0'+c.charCodeAt(0).toString(16)).slice(-2)).join('').toUpperCase();
-      const parsed = parseTLV(hex);
+      const parsed = parseHexTLV(hex);
       document.getElementById('output').innerHTML = format(parsed);
       document.getElementById('description').textContent = 'This is your parsed TLV string:';
     } catch {
@@ -283,8 +221,7 @@
     }
   }
 
-  // Recursive TLV parser
-  function parseTLV(hex) {
+  function parseHexTLV(hex) {
     let i = 0, res = {}, keepHex = ['4F','9F25'];
     while (i < hex.length) {
       let tag = hex.substr(i,2); i += 2;
@@ -299,7 +236,7 @@
       }
       const valHex = hex.substr(i,len*2); i += len*2;
       if (tag === '61' || tag === '63') {
-        res[tag] = parseTLV(valHex);
+        res[tag] = parseHexTLV(valHex);
       } else if (tag === '5A') {
         res[tag] = valHex.match(/.{2}/g).map(b => `${(parseInt(b,16)>>4)&0xF}${parseInt(b,16)&0xF}`).join('').replace(/F+$/,'').slice(0,19);
       } else if (keepHex.includes(tag)) {
@@ -311,91 +248,83 @@
     return res;
   }
 
-  // Format with tag/subtag descriptions
   function format(obj, indent=0, parentTag=null) {
     const pad = '  '.repeat(indent);
     const priority = t => (t === '00' ? 0 : t === '01' ? 1 : t === '26' ? 2 : t === '85' ? 3 : 4);
     return Object.entries(obj)
-      .sort(([a],[b]) => {
-        const pa = priority(a), pb = priority(b);
-        return pa === pb ? a.localeCompare(b) : pa - pb;
-      })
+      .sort(([a],[b]) => priority(a) - priority(b) || a.localeCompare(b))
       .map(([k,v]) => {
-        let desc = '';
-        if (parentTag && subtagDescriptions[parentTag] && subtagDescriptions[parentTag][k]) {
-          desc = ` [${subtagDescriptions[parentTag][k]}]`;
-        } else if (parentTag === '62') {
-          desc = ` [Application Label]`;
-        } else if (tagDescriptions[k]) {
-          desc = ` [${tagDescriptions[k]}]`;
-        }
+        let desc = (parentTag && subtagDescriptions[parentTag]?.[k]) ? ` [${subtagDescriptions[parentTag][k]}]` : (tagDescriptions[k] ? ` [${tagDescriptions[k]}]` : (parentTag === '62' ? ' [Application Label]' : ''));
         const key = `"${k}${desc}"`;
-        let html = typeof v === 'object'
-          ? `{\n${format(v, indent+1, k)}\n${pad}}`
-          : `<span style="font-weight:bold">${v}</span>`;
-        const hl = (k === '5A' || k === '5F20');
-        return hl
-          ? `<span style="font-size:24px;background:#FFFF99;">${pad}${key}: "${html}"</span>`
-          : `${pad}${key}: ${typeof v === 'object' ? html : `"${html}"`}`;
-      })
-      .join(',\n');
+        let valStr = typeof v === 'object' ? `{\n${format(v, indent+1, k)}\n${pad}}` : `<span style="font-weight:bold">${v}</span>`;
+        const isHl = (k === '5A' || k === '5F20');
+        return isHl ? `<span style="font-size:24px;background:#FFFF99;">${pad}${key}: "${valStr}"</span>` : `${pad}${key}: ${typeof v === 'object' ? valStr : `"${valStr}"`}`;
+      }).join(',\n');
   }
 
-  // CRC-16 calculator
   function crc16(str) {
-    let crc = 0xFFFF, poly = 0x1021;
+    let crc = 0xFFFF;
     for (let c of str) {
       crc ^= c.charCodeAt(0) << 8;
-      for (let i=0; i<8; i++)
-        crc = (crc & 0x8000) ? ((crc << 1) ^ poly) & 0xFFFF : (crc << 1) & 0xFFFF;
+      for (let i=0; i<8; i++) crc = (crc & 0x8000) ? ((crc << 1) ^ 0x1021) & 0xFFFF : (crc << 1) & 0xFFFF;
     }
     return crc & 0xFFFF;
   }
 
   let originalCrcText = '';
   function calculateCRC16() {
-    const inp = document.getElementById('crcInput').value,
-          out = document.getElementById('crcOutput');
+    const inp = document.getElementById('crcInput').value, out = document.getElementById('crcOutput');
     if (inp) {
       const val = ('0000' + crc16(inp).toString(16)).slice(-4).toUpperCase();
       originalCrcText = val; out.textContent = val;
     } else {
-      originalCrcText = 'Please enter a string to calculate CRC‑16.';
+      originalCrcText = 'Please enter a string.';
       out.textContent = originalCrcText;
     }
     out.classList.remove('copied');
   }
+
   function copyCrcResult() {
     const out = document.getElementById('crcOutput'), txt = out.textContent;
     if (txt === 'Copied!' || txt.startsWith('Please')) return;
-    navigator.clipboard.writeText(txt)
-      .then(() => {
-        out.textContent = 'Copied!';
-        out.classList.add('copied');
-        setTimeout(() => { out.textContent = originalCrcText; out.classList.remove('copied'); }, 1500);
-      })
-      .catch(() => {
-        out.textContent = 'Copy failed';
-        setTimeout(() => { out.textContent = originalCrcText; }, 1500);
-      });
+    navigator.clipboard.writeText(txt).then(() => {
+      out.textContent = 'Copied!';
+      out.classList.add('copied');
+      setTimeout(() => { out.textContent = originalCrcText; out.classList.remove('copied'); }, 1500);
+    });
   }
 
-  // EMVCo TLV parser for QR code generation and merchant info display
+  // --- FIXED EMVCO PARSER ---
   function parseEMVCo(tlv) {
     const recurseTags = ['26','51','62'];
-    const obj = {}; let i=0;
+    const obj = {}; 
+    let i = 0;
     while(i < tlv.length) {
       const tag = tlv.substr(i,2);
-      const len = parseInt(tlv.substr(i+2,2),10);
-      const val = tlv.substr(i+4,len);
+      const lenPart = tlv.substr(i+2,2);
+      if (tag.length < 2 || lenPart.length < 2) break;
+      const len = parseInt(lenPart, 10);
+      const val = tlv.substr(i+4, len);
+      
+      if (recurseTags.includes(tag)) {
+        try {
+          // Verify if it looks like valid sub-TLV (DigitDigit + LengthDigitDigit)
+          if (/^\d{4}/.test(val)) {
+            obj[tag] = parseEMVCo(val);
+          } else {
+            obj[tag] = val;
+          }
+        } catch(e) { obj[tag] = val; }
+      } else {
+        obj[tag] = val;
+      }
       i += 4 + len;
-      obj[tag] = recurseTags.includes(tag) ? parseEMVCo(val) : val;
     }
     return obj;
   }
-  function cleanIssuer(raw) {
-    return raw.replace(/^(?:COM\\.|ID\\.CO\\.)/i,'').replace(/\\.WWW$/i,'');
-  }
+
+  function cleanIssuer(raw) { return raw.replace(/^(?:COM\.|ID\.CO\.)/i,'').replace(/\.WWW$/i,''); }
+
   function displayMerchantInfo(parsed) {
     const div = document.getElementById('merchantInfo');
     const t26 = parsed['26'] || {}, t51 = parsed['51'] || {}, t62 = parsed['62'] || {};
@@ -409,68 +338,41 @@
       ['Merchant Type', t26['03'] || '']
     ];
     let html = rows.map(([l,v]) => `<div><span class="label">${l}:</span> ${v || '<em>N/A</em>'}</div>`).join('');
-    const subs = Object.keys(t62);
-    if (subs.length) {
+    if (Object.keys(t62).length) {
       html += '<div class="section-title">Additional Data:</div>';
-      html += subs.map(st => `<div><span class="label">Tag ${st}:</span> ${t62[st]}</div>`).join('');
+      html += Object.keys(t62).map(st => `<div><span class="label">Tag ${st}:</span> ${t62[st]}</div>`).join('');
     }
     div.innerHTML = html;
   }
+
   function generateQrCodeFeature() {
     const input = document.getElementById('qrInput').value.trim(),
           qDiv = document.getElementById('qrcodeDisplay'),
           mDiv = document.getElementById('merchantInfo');
     qDiv.innerHTML = ''; mDiv.innerHTML = '';
-    if (!input) {
-      qDiv.textContent = 'Please paste TLV EMVCo data first.';
-      return;
-    }
-    new QRCode(qDiv, {text: input, width: 256, height: 256, colorDark: '#000', colorLight: '#fff', correctLevel: QRCode.CorrectLevel.H});
+    if (!input) { qDiv.textContent = 'Please paste data first.'; return; }
+    
+    // CHANGED: correctLevel updated from H to M
+    new QRCode(qDiv, {text: input, width: 256, height: 256, colorDark: '#000', colorLight: '#fff', correctLevel: QRCode.CorrectLevel.M});
+    
     try {
       displayMerchantInfo(parseEMVCo(input));
-    } catch {
-      mDiv.innerHTML = '<span style="color:red">Failed to parse merchant info.</span>';
+    } catch (e) {
+      mDiv.innerHTML = '<span style="color:red">Failed to parse merchant details.</span>';
     }
   }
 
-  // QRIS parser from string
-  function parseQRISString(str) {
-    try {
-      return {parsed: parseEMVCo(str), error: null};
-    } catch (e) {
-      return {parsed: null, error: 'Failed to parse QRIS string: ' + e.message};
-    }
-  }
   function parseQRISFromText() {
-    const input = document.getElementById('qrStringInput').value.trim(),
-          out = document.getElementById('qrisOutput');
+    const input = document.getElementById('qrStringInput').value.trim(), out = document.getElementById('qrisOutput');
     out.textContent = '';
-    if (!input) {
-      out.innerHTML = '<span class="error">Paste a QRIS string first.</span>';
-      return;
-    }
-    const {parsed, error} = parseQRISString(input);
-    out.innerHTML = error ? `<span class="error">${error}</span>` : format(parsed);
-  }
-
-  // QRIS parser from uploaded image using qr-scanner library (function remains but UI removed)
-  async function parseQRISFromImage() {
-    const fileInput = document.getElementById('qrImageInput');
-    const out = document.getElementById('qrisOutput');
-    out.textContent = '';
-    if (!fileInput.files.length) {
-      out.innerHTML = '<span class="error">Select an image first.</span>';
-      return;
-    }
+    if (!input) { out.innerHTML = '<span class="error">Paste a string first.</span>'; return; }
     try {
-      const data = await QrScanner.scanImage(fileInput.files[0], {returnDetailedScanResult: false});
-      document.getElementById('qrStringInput').value = data;
-      parseQRISFromText();
+      const parsed = parseEMVCo(input);
+      out.innerHTML = format(parsed);
     } catch (e) {
-      out.innerHTML = `<span class="error">Failed to decode QR image: ${e}</span>`;
+      out.innerHTML = `<span class="error">Failed: ${e.message}</span>`;
     }
   }
 </script>
-
 </body>
 </html>
