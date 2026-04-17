@@ -202,11 +202,11 @@
       .then(r => r.json())
       .then(d => {
         const name = d.city || 'Sahabat Kojo Di Wowo';
-        document.getElementById('greeting').innerHTML = `Hi, <span style="color:black;font-weight:bold;">${name}</span>`;
-      })
-      .catch(() => {
-        document.getElementById('greeting').innerHTML = 'Hi, <span style="color:black;font-weight:bold;">Sahabat Kojo Di Wowo</span>';
-      });
+document.getElementById('greeting').innerHTML = `<span style="font-size: 24px;color:#006677;">Hi, <span style="color:#E55300;font-weight:bold;">${name}</span></span>`;
+    })
+    .catch(() => {
+      document.getElementById('greeting').innerHTML = '<span style="font-size: 24px;color:#006677;">Hi, <span style="color:#E55300;font-weight:bold;">Sahabat Kojo Di Wowo</span></span>';
+    });
   });
 
   function decodeTLV() {
